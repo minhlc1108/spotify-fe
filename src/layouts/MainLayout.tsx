@@ -5,13 +5,13 @@ import { Outlet } from "react-router-dom";
 
 const MainLayout: React.FC = () => {
 	return (
-		<>
+		<div>
 			<Header />
 			<main className="flex-grow">
 				<Outlet />
 			</main>
 			<Footer />
-		</>
+		</div>
 	);
 };
 
