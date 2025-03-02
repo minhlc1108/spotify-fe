@@ -22,7 +22,7 @@
 			"@assets/*": ["./src/assets/*"],
 			"@components/*": ["./src/components/*"],
 			"@hooks/*": ["./src/hooks/*"],
-			"@layouts/*": ["./src/layouts/*"],
+			"@layouts/*": ["src/components/layouts/*"],
 			"@pages/*": ["./src/pages/*"],
 			"@routes/*": ["./src/routes/*"],
 			"@store/*": ["./src/store/*"],
