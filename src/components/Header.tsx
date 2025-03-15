@@ -10,8 +10,8 @@ const Header: React.FC = () => {
 	// Focus vào input khi nhấn icon search
 	const focusInput = (): void => inputRef.current?.focus();
 	return (
-		<div className="flex items-center justify-between h-16 p-2">
-			<div className="m-5">
+		<div className="flex items-center justify-between h-16 p-2 -m-2">
+			<div className="m-5 cursor-pointer">
 				<Spotify fontSize={32} />
 			</div>
 			<div className="group hidden items-center h-12  md:flex lg:w-[40rem] md:w-[30rem]  bg-[#242424] hover:bg-[#2a2a2a] rounded-full px-4 focus-within:outline focus-within:outline-2 focus-within:outline-white transition-all duration-300">
@@ -29,7 +29,10 @@ const Header: React.FC = () => {
 				/>
 
 				{inputValue && (
-					<button className="flex items-center justify-center w-8 h-8 text-[#b3b3b3] hover:text-white" onClick={clearInput}>
+					<button
+						className="flex items-center justify-center w-8 h-8 text-[#b3b3b3] hover:text-white"
+						onClick={clearInput}
+					>
 						X
 					</button>
 				)}
@@ -44,7 +47,9 @@ const Header: React.FC = () => {
 					<Search className="text-[#b3b3b3]" />
 				</div>
 				<button className="px-6 py-2 text-sm font-bold text-zinc-500 hover:text-white">Sign up</button>
-				<button className="flex items-center justify-center px-6 py-2 mr-8 bg-white text-black font-bold rounded-3xl text-base hover:scale-105">Log in</button>
+				<button className="flex items-center justify-center px-6 py-2 mr-8 bg-white text-black font-bold rounded-3xl text-base hover:scale-105">
+					Log in
+				</button>
 			</div>
 		</div>
 	);
