@@ -5,6 +5,7 @@ export default {
 	theme: {
 		extend: {
 			colors: {
+				backgroundBase: "#121212",
 				evevatedBase: "#1f1f1f",
 				evevatedHighlight: "#2a2a2a",
 			},
