@@ -48,7 +48,7 @@ const Header: React.FC = () => {
 				<div className="flex items-center justify-center w-5 h-5 cursor-pointer sm:hidden">
 					<Search className="text-[#b3b3b3]" />
 				</div>
-				<Link to="/signup">
+				<Link to="/register">
 					<button className="px-6 py-2 text-sm font-bold text-zinc-500 hover:text-white">Sign up</button>
 				</Link>
 				<Link to="/login">
