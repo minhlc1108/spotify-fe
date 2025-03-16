@@ -1,5 +1,7 @@
 import MainLayout from "@/layouts/MainLayout";
 import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import SignUp from "@/pages/SignUp";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -7,6 +9,8 @@ const AppRouter: React.FC = () => {
 	return (
 		<Router>
 			<Routes>
+				<Route path="/login" element={<Login />} />
+				<Route path="/signup" element={<SignUp />} />
 				<Route path="/" element={<MainLayout />}>
 					<Route index element={<Home />} />
 					<Route path="home" element={<Home />} />

@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import Spotify from "@components/icons/icon-spotify";
 import Search from "@components/icons/icon-search";
 import Browse from "@components/icons/icon-browse";
+import { Link } from "react-router-dom";
+
 const Header: React.FC = () => {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [inputValue, setInputValue] = useState("");
@@ -46,10 +48,14 @@ const Header: React.FC = () => {
 				<div className="flex items-center justify-center w-5 h-5 cursor-pointer sm:hidden">
 					<Search className="text-[#b3b3b3]" />
 				</div>
-				<button className="px-6 py-2 text-sm font-bold text-zinc-500 hover:text-white">Sign up</button>
-				<button className="flex items-center justify-center px-6 py-2 mr-8 bg-white text-black font-bold rounded-3xl text-base hover:scale-105">
-					Log in
-				</button>
+				<Link to="/signup">
+					<button className="px-6 py-2 text-sm font-bold text-zinc-500 hover:text-white">Sign up</button>
+				</Link>
+				<Link to="/login">
+					<button className="flex items-center justify-center px-6 py-2 mr-8 bg-white text-black font-bold rounded-3xl text-base hover:scale-105">
+						Log in
+					</button>
+				</Link>
 			</div>
 		</div>
 	);
