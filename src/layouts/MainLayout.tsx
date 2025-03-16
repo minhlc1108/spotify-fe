@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Library from "@/components/Library";
+import Queue from "@/components/Queue";
 import React from "react";
 import { Outlet } from "react-router-dom";
 
@@ -20,7 +21,7 @@ const MainLayout: React.FC = () => {
 				<Header />
 			</div>
 			<div
-				className="flex flex-col w-[280px] h-full min-h-0 rounded-lg overflow-x-hidden bg-backgroundBase"
+				className="flex flex-col h-full rounded-lg overflow-x-hidden bg-backgroundBase"
 				style={{
 					gridArea: "left-sidebar",
 				}}
@@ -30,8 +31,11 @@ const MainLayout: React.FC = () => {
 			<div className="rounded-lg bg-backgroundBase" style={{ gridArea: "main-view" }}>
 				<Outlet />
 			</div>
-			<div className="rounded-lg bg-backgroundBase" style={{ gridArea: "right-sidebar" }}>
-				Queue
+			<div
+				className="flex flex-col h-full  rounded-lg  overflow-x-hidden bg-backgroundBase"
+				style={{ gridArea: "right-sidebar" }}
+			>
+				<Queue />
 			</div>
 			<div style={{ gridArea: "nowplaying-bar" }}>
 				<Footer />
