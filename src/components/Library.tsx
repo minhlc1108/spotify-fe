@@ -9,9 +9,11 @@ import LibraryItem from "@components/LibraryItem";
 
 function Library() {
 	const [isSearching, setIsSearching] = useState<boolean>(false);
+	const [hasScrolled, setHasScrolled] = useState<boolean>(false);
 	const [keyword, setKeyWord] = useState<string>("");
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
+	const contentRef = useRef<HTMLInputElement | null>(null);
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
 			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -20,30 +22,39 @@ function Library() {
 				}
 			}
 		}
-
+		const content = contentRef.current;
+		const handleScroll = () => {
+			if (content) {
+				setHasScrolled(content.scrollTop > 0);
+			}
+		};
+		content?.addEventListener("scroll", handleScroll);
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => {
+			content?.removeEventListener("scroll", handleScroll);
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [keyword]);
 	return (
-		<div className="h-full flex flex-col">
-			<div className="flex justify-between px-4 pt-3 pb-2">
-				<button className="group flex items-center h-10 gap-2 px-2 py-1 font-bold text-[#b3b3b3] hover:text-white">
-					<LibraryIcon className=" fill-[#b3b3b3] group-hover:fill-white" height="24" width="24" />
-					Your Library
-				</button>
-				<span className="flex items-center">
-					<button className="group flex items-center p-2 rounded-full hover:bg-evevatedBase">
-						<PlusIcon className="w-4 h-4 fill-[#b3b3b3] group-hover:fill-white" />
+		<div className="sm:flex hidden w-[280px] min-h-0  flex-col">
+			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>
+				<div className="flex justify-between px-4 pt-3 pb-2">
+					<button className="group flex items-center h-10 gap-2 px-2 py-1 font-bold text-[#b3b3b3] hover:text-white">
+						<LibraryIcon className=" fill-[#b3b3b3] group-hover:fill-white" height="24" width="24" />
+						Your Library
 					</button>
-				</span>
+					<span className="flex items-center">
+						<button className="group flex items-center p-2 rounded-full hover:bg-evevatedBase">
+							<PlusIcon className="w-4 h-4 fill-[#b3b3b3] group-hover:fill-white" />
+						</button>
+					</span>
+				</div>
+				<div className="flex items-center gap-2 mx-4 my-2">
+					<Tag title="Playlists" />
+					<Tag title="Artists" />
+				</div>
 			</div>
-			<div className="flex items-center gap-2 mx-4 my-2">
-				<Tag title="Playlists" />
-				<Tag title="Artists" />
-			</div>
-			<div className="flex-1 overflow-y-auto">
+			<div className="flex-1 overflow-y-auto" ref={contentRef}>
 				<div className="flex flex-col justify-center px-2 pb-2 gap-2  ">
 					<div className="flex items-center justify-between h-8 px-2 pt-1">
 						<div className="relative" ref={searchRef} onClick={() => inputRef.current?.focus()}>
@@ -97,6 +108,9 @@ function Library() {
 									url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
 									_id="73DlGzZda4hdpTsGCiAir8"
 									desc="Playlist  • Minh.lcm."
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing
 								/>
 							</li>
 							<li>
@@ -106,24 +120,81 @@ function Library() {
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
 									_id="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
 								/>
 							</li>
 							<li>
 								<LibraryItem
-									title="Playlist của tôi #1"
-									type="playlist"
-									url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
+									title="TheFatRat"
+									type="artist"
+									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
 									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Playlist  • Minh.lcm."
+									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
 								/>
 							</li>
 							<li>
 								<LibraryItem
-									title="Playlist của tôi #1"
-									type="playlist"
-									url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
+									title="TheFatRat"
+									type="artist"
+									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
 									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Playlist  • Minh.lcm."
+									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
+								/>
+							</li>
+							<li>
+								<LibraryItem
+									title="TheFatRat"
+									type="artist"
+									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
+									_id="73DlGzZda4hdpTsGCiAir8"
+									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
+								/>
+							</li>
+							<li>
+								<LibraryItem
+									title="TheFatRat"
+									type="artist"
+									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
+									_id="73DlGzZda4hdpTsGCiAir8"
+									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
+								/>
+							</li>
+							<li>
+								<LibraryItem
+									title="TheFatRat"
+									type="artist"
+									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
+									_id="73DlGzZda4hdpTsGCiAir8"
+									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
+								/>
+							</li>
+							<li>
+								<LibraryItem
+									title="TheFatRat"
+									type="artist"
+									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
+									_id="73DlGzZda4hdpTsGCiAir8"
+									desc="Artist"
+									isPlaying={false}
+									isPlayingBar={false}
+									isShowing={false}
 								/>
 							</li>
 							<li>
@@ -133,33 +204,9 @@ function Library() {
 									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
 									_id="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="Sơn Tùng M-TP"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="Sơn Tùng M-TP"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="Sơn Tùng M-TP"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
+									isPlaying
+									isPlayingBar
+									isShowing={false}
 								/>
 							</li>
 						</ul>
