@@ -70,7 +70,7 @@ const Login: React.FC = () => {
         {/* Sign up link */}
         <div className="text-center text-gray-400">
           <span>Bạn chưa có tài khoản? </span>
-          <Link to="/signup" className="text-white hover:underline">Đăng ký Spotify</Link>
+          <Link to="/register" className="text-white hover:underline">Đăng ký Spotify</Link>
         </div>
       </div>
     </div>
