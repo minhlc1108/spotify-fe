@@ -7,39 +7,18 @@ body {
 }
 @layer base {
 	/* Dành cho trình duyệt WebKit (Chrome, Safari, Edge) */
+
 	::-webkit-scrollbar {
-		@apply w-2 h-2;
+		width: 14px;
 	}
-
-	::-webkit-scrollbar-track {
-		@apply bg-transparent;
-	}
-
 	::-webkit-scrollbar-thumb {
-		@apply bg-transparent rounded-full transition-colors duration-300;
+		background-color: hsla(0, 0%, 100%, 0.3);
 	}
 
-	/* Hiện scrollbar khi hover */
 	:hover::-webkit-scrollbar-thumb {
-		@apply bg-[#535353];
+		background-color: #b3b3b3;
 	}
-
-	/* Scrollbar khi active */
-	:active::-webkit-scrollbar-thumb {
-		@apply bg-[#b3b3b3];
-	}
-
-	/* Dành cho Firefox */
-	html {
-		scrollbar-color: transparent transparent; /* thumb và track */
-		scrollbar-width: thin;
-	}
-
-	html:hover {
-		scrollbar-color: #535353 transparent;
-	}
-
-	html:active {
-		scrollbar-color: #b3b3b3 transparent;
+	body::-webkit-scrollbar {
+		display: none;
 	}
 }
