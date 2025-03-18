@@ -4,13 +4,13 @@ import PlayIcon from "./icons/icon-play";
 import OptionIcon from "./icons/icon-option";
 import { Link } from "react-router-dom";
 
-interface Props {
+interface QueueItemProps {
 	title: string;
 	url_img: string;
 	isNowPlaying: boolean;
 	isPlaying: boolean;
 }
-function QueueItem(props: Props) {
+const QueueItem: React.FC<QueueItemProps> = (props) => {
 	const [isNowPlaying, setIsNowPlaying] = useState<boolean>(props.isNowPlaying);
 	const [isPlaying, setIsPlaying] = useState<boolean>(props.isPlaying);
 	return (
@@ -20,6 +20,7 @@ function QueueItem(props: Props) {
 				gridTemplateColumns: "auto 1fr",
 				gridTemplateRows: "48px",
 			}}
+			onClick={() => setIsNowPlaying(true)}
 		>
 			<div className={`col-start-1 col-end-1 relative  rounded-sm overflow-hidden`}>
 				<img className={`h-full w-full object-cover object-center`} src={props.url_img} alt="" />
@@ -56,6 +57,6 @@ function QueueItem(props: Props) {
 			</div>
 		</div>
 	);
-}
+};
 
 export default QueueItem;

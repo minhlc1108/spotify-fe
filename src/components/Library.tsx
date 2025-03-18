@@ -7,7 +7,7 @@ import CloseIcon from "@components/icons/icon-close";
 import { useEffect, useRef, useState } from "react";
 import LibraryItem from "@components/LibraryItem";
 
-function Library() {
+const Library: React.FC = () => {
 	const [isSearching, setIsSearching] = useState<boolean>(false);
 	const [hasScrolled, setHasScrolled] = useState<boolean>(false);
 	const [keyword, setKeyWord] = useState<string>("");
@@ -15,7 +15,7 @@ function Library() {
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const contentRef = useRef<HTMLInputElement | null>(null);
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
+		function handleClickOutside(event: MouseEvent): void {
 			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
 				if (keyword.trim() === "") {
 					setIsSearching(false);
@@ -23,14 +23,14 @@ function Library() {
 			}
 		}
 		const content = contentRef.current;
-		const handleScroll = () => {
+		const handleScroll = (): void => {
 			if (content) {
 				setHasScrolled(content.scrollTop > 0);
 			}
 		};
 		content?.addEventListener("scroll", handleScroll);
 		document.addEventListener("mousedown", handleClickOutside);
-		return () => {
+		return (): void => {
 			content?.removeEventListener("scroll", handleScroll);
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
@@ -215,6 +215,6 @@ function Library() {
 			</div>
 		</div>
 	);
-}
+};
 
 export default Library;

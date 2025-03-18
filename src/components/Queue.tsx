@@ -3,28 +3,29 @@ import CloseIcon from "./icons/icon-close";
 import QueueItem from "./QueueItem";
 import { Link } from "react-router-dom";
 
-function Queue() {
+const Queue: React.FC = () => {
 	const [hasScrolled, setHasScrolled] = useState<boolean>(false);
+	const [isOpen, setIsOpen] = useState<boolean>(true);
 	const contentRef = useRef<HTMLInputElement | null>(null);
 	useEffect(() => {
 		const content = contentRef.current;
-		const handleScroll = () => {
+		const handleScroll = (): void => {
 			if (content) {
 				setHasScrolled(content.scrollTop > 0);
 			}
 		};
 		content?.addEventListener("scroll", handleScroll);
-		return () => {
+		return (): void => {
 			content?.removeEventListener("scroll", handleScroll);
 		};
 	}, []);
 	return (
-		<div className="md:flex hidden w-[280px] min-h-0 flex-col">
+		<div className={`sm:flex hidden w-[280px] min-h-0 flex-col`}>
 			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>
 				<div className="h-16 px-4 py-2 flex items-center justify-between">
 					<div className="font-bold">Queue</div>
 					<button className="group flex items-center p-2 rounded-full hover:bg-evevatedBase">
-						<CloseIcon className="size-4 fill-[#b3b3b3] group-hover:fill-white" />
+						<CloseIcon className="size-4 fill-[#b3b3b3] group-hover:fill-white" onClick={() => setIsOpen(!isOpen)} />
 					</button>
 				</div>
 			</div>
@@ -120,6 +121,6 @@ function Queue() {
 			</div>
 		</div>
 	);
-}
+};
 
 export default Queue;

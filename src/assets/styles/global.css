@@ -15,10 +15,17 @@ body {
 		background-color: hsla(0, 0%, 100%, 0.3);
 	}
 
-	:hover::-webkit-scrollbar-thumb {
-		background-color: #b3b3b3;
+	::-webkit-scrollbar-thumb:hover {
+		background-color: hsla(0, 0%, 100%, 0.5);
 	}
+	::-webkit-scrollbar-thumb:active {
+		background-color: hsla(0, 0%, 100%, 0.7);
+	}
+
 	body::-webkit-scrollbar {
 		display: none;
+	}
+	body {
+		overflow: hidden; /* Ẩn scrollbar toàn bộ */
 	}
 }

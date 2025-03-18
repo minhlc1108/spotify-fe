@@ -34,7 +34,7 @@ const typescriptConfig = {
 		},
 	},
 	rules: {
-		// "@typescript-eslint/explicit-function-return-type": "error", // Bắt buộc khai báo kiểu trả về
+		"@typescript-eslint/explicit-function-return-type": "error", // Bắt buộc khai báo kiểu trả về
 		"@typescript-eslint/no-unused-vars": "error", // Cảnh báo biến không dùng
 		"@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: { attributes: false } }],
 	},
