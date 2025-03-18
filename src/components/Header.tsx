@@ -13,9 +13,9 @@ const Header: React.FC = () => {
 	const focusInput = (): void => inputRef.current?.focus();
 	return (
 		<div className="flex items-center justify-between h-16 p-2 -m-2">
-			<div className="m-5 cursor-pointer">
+			<Link to={""} className="m-5">
 				<Spotify fontSize={32} />
-			</div>
+			</Link>
 			<div className="group hidden items-center h-12  md:flex lg:w-[40rem] md:w-[30rem]  bg-[#242424] hover:bg-[#2a2a2a] rounded-full px-4 focus-within:outline focus-within:outline-2 focus-within:outline-white transition-all duration-300">
 				<div className="flex items-center justify-center w-8 h-8 cursor-pointer" onClick={focusInput}>
 					<Search className="text-[#b3b3b3]" />

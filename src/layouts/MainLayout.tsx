@@ -8,7 +8,7 @@ import { Outlet } from "react-router-dom";
 const MainLayout: React.FC = () => {
 	return (
 		<div
-			className="h-screen w-screen grid p-2 gap-2"
+			className="h-screen w-full grid p-2 gap-2"
 			style={{
 				gridTemplateAreas: `"header header header"
 			 "left-sidebar main-view right-sidebar"
@@ -28,11 +28,14 @@ const MainLayout: React.FC = () => {
 			>
 				<Library />
 			</div>
-			<div className="rounded-lg bg-backgroundBase" style={{ gridArea: "main-view" }}>
+			<div
+				className="rounded-lg min-h-0 w-full overflow-y-auto bg-backgroundBase"
+				style={{ gridArea: "main-view", clipPath: "inset(0 round 8px)" }}
+			>
 				<Outlet />
 			</div>
 			<div
-				className="flex flex-col h-full  rounded-lg  overflow-x-hidden bg-backgroundBase"
+				className="flex flex-col h-full rounded-lg  overflow-x-hidden bg-backgroundBase"
 				style={{ gridArea: "right-sidebar" }}
 			>
 				<Queue />
