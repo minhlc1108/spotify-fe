@@ -1,4 +1,5 @@
 import MusicCard from "@/components/MusicCard";
+import Table from "@/components/Table";
 import React from "react";
 
 const data = {
@@ -10,25 +11,16 @@ const data = {
 const Artist: React.FC = () => {
 	return (
 		<div className="">
+			<Table/>
+
+
 			<div className="mb-4">
-				<h1 className="my-5  font-bold text-2xl">Discography</h1>
-
-				<div className="flex overflow-auto">
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-
+				<div className="flex flex-row justify-between items-center">
+					<h1 className="m-5 font-bold text-2xl">Fans also like</h1>
+					<p className="m-5 text-md opacity-50">Show all</p>
 				</div>
-			</div>
-
-			<div className="mb-4">
-				<h1 className="my-5 font-bold text-2xl">Featuring</h1>
 
 				<div className="flex overflow-auto">
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
 					<MusicCard data={data} shape="square" />
 					<MusicCard data={data} shape="square" />
 					<MusicCard data={data} shape="square" />
@@ -36,26 +28,15 @@ const Artist: React.FC = () => {
 			</div>
 
 			<div className="mb-4">
-				<h1 className="my-5 font-bold text-2xl">Fans also like</h1>
-
-				<div className="flex overflow-auto">
-					<MusicCard data={data} shape="circle" />
-					<MusicCard data={data} shape="circle" />
-					<MusicCard data={data} shape="circle" />
-					<MusicCard data={data} shape="circle" />
-					<MusicCard data={data} shape="circle" />
+				<div className="flex flex-row justify-between items-center">
+					<h1 className="m-5 font-bold text-2xl">Fans also like</h1>
+					<p className="m-5 text-md opacity-50">Show all</p>
 				</div>
-			</div>
-
-			<div className="mb-4">
-				<h1 className="my-5 font-bold text-2xl">Appears On</h1>
 
 				<div className="flex overflow-auto">
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
-					<MusicCard data={data} shape="square" />
+					<MusicCard data={data} shape="circle" />
+					<MusicCard data={data} shape="circle" />
+					<MusicCard data={data} shape="circle" />
 				</div>
 			</div>
 		</div>

@@ -23,11 +23,11 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, shape }) => {
           
         </img>
         {/* Nút Play */}
-        <div className="absolute inset-0 flex items-end justify-end  bg-opacity-50 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
-          <button className="bg-green-600 text-black p-2 rounded-full w-2/6 h-2/6 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-end justify-end  bg-opacity-50 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded ">
+          <button className="bg-green-600 text-black p-1 rounded-full w-2/6 h-2/6 flex items-center justify-center shadow-xl ">
             <PlayIcon className="w-3/5 h-3/5 "  />
           </button>
-        </div>
+        </div>  
       </div>
 
       {/* Tiêu đề & Nghệ sĩ */}

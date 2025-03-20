@@ -3,7 +3,6 @@ import Artist from "./Artist";
 
 const Home: React.FC = () => {
 	return <div>
-		
 		<Artist/>
 	</div>;
 };

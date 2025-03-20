@@ -28,7 +28,7 @@ const MainLayout: React.FC = () => {
 			>
 				<Library />
 			</div>
-			<div className="rounded-lg bg-backgroundBase" style={{ gridArea: "main-view" }}>
+			<div className="rounded-lg bg-backgroundBase overflow-auto " style={{ gridArea: "main-view" }}>
 				<Outlet />
 			</div>
 			<div
@@ -37,7 +37,7 @@ const MainLayout: React.FC = () => {
 			>
 				<Queue />
 			</div>
-			<div style={{ gridArea: "nowplaying-bar" }}>
+			<div className="min-h-[70px]" style={{ gridArea: "nowplaying-bar" }}>
 				<Footer />
 			</div>
 		</div>
