@@ -3,6 +3,7 @@ import MusicCard, { MusicCardProps } from "@components/MusicCard";
 import { Link } from "react-router-dom";
 import PreviousIcon from "./icons/icon-previous";
 import NextIcon from "./icons/icon-next";
+import SlideNextIcon from "./icons/icon-slideNext";
 
 interface SectionProps {
 	musicCardProps: MusicCardProps;
@@ -80,7 +81,7 @@ const Section: React.FC<SectionProps> = (props) => {
 					<div
 						className={`relative transition-opacity duration-200 ${canScrollRight ? "group-hover/container:opacity-100  pointer-events-auto" : "pointer-events-none"} flex opacity-0 top-[50%] -mt-4 items-center justify-center rounded-full h-8 w-8 bg-evevatedBase cursor-pointer  hover:bg-evevatedHighlight p-1`}
 					>
-						<NextIcon className="size-4 fill-white" onClick={() => scroll("right")} />
+						<SlideNextIcon className="size-4 fill-white" onClick={() => scroll("right")} />
 					</div>
 				</div>
 			</div>
