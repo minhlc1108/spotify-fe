@@ -72,9 +72,11 @@ const Footer: React.FC = () => {
 				<button className="w-5 h-5 cursor-pointer flex items-center justify-center rounded-full opacity-80">
 					<SpeakIcon />
 				</button>
-					<div className="
+				<div
+					className="
 					w-20 bg-slate-50 h-1 rounded 
-					"></div>
+					"
+				></div>
 				{/* <BarIcon className="w-5 h-5 cursor-pointer" />
 				<div className="w-20 h-1 bg-gray-600 rounded-full relative">
 					<div className="w-10 h-full bg-white rounded-full"></div>

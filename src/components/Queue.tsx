@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import CloseIcon from "./icons/icon-close";
-import QueueItem from "./QueueItem";
+import CloseIcon from "@components/icons/icon-close";
+import QueueItem from "@components/QueueItem";
 import { Link } from "react-router-dom";
 
 const Queue: React.FC = () => {

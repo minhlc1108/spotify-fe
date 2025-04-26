@@ -29,7 +29,7 @@ const MusicPlayerContext = createContext<MusicPlayerContextType | null>(null);
 // 2. Provider để bọc toàn bộ app
 import { ReactNode } from "react";
 
-export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
+export const MusicPlayerProvider = ({ children }: { children: ReactNode }): JSX.Element => {
 	const [currentTrack, setCurrentTrack] = useState<TrackSimple | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [timePause, setTimePause] = useState(0);
@@ -55,4 +55,4 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // 3. Hook để dễ sử dụng
-export const useMusicPlayer = () => useContext(MusicPlayerContext);
+export const useMusicPlayer = (): MusicPlayerContextType | null => useContext(MusicPlayerContext);
