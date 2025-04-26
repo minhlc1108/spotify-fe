@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import MusicCard, { MusicCardProps } from "@components/MusicCard";
 import { Link } from "react-router-dom";
-import PreviousIcon from "./icons/icon-previous";
-import NextIcon from "./icons/icon-next";
-import SlideNextIcon from "./icons/icon-slideNext";
+import PreviousIcon from "@components/icons/icon-previous";
+import SlideNextIcon from "@components/icons/icon-slideNext";
 
 interface SectionProps {
-	musicCardProps: MusicCardProps;
+	data: MusicCardProps[];
 	title: string;
 	url: string;
 }
 
-const Section: React.FC<SectionProps> = (props) => {
+const Section: React.FC<SectionProps> = ({ data, title, url }) => {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
 	const [canScrollRight, setCanScrollRight] = useState<boolean>(true);
@@ -44,13 +43,14 @@ const Section: React.FC<SectionProps> = (props) => {
 			scrollElement?.removeEventListener("scroll", checkScroll);
 		};
 	}, []);
+
 	return (
 		<section className="flex flex-col gap-2">
 			<div className="flex justify-between items-end min-h-12 ">
-				<Link to={props.url} className="font-bold text-2xl hover:underline ">
-					{props.title}
+				<Link to={url} className="font-bold text-2xl hover:underline ">
+					{title}
 				</Link>
-				<Link to={props.url} className="text-[#b3b3b3] text-sm hover:underline">
+				<Link to={url} className="text-[#b3b3b3] text-sm hover:underline">
 					Show all
 				</Link>
 			</div>
@@ -61,15 +61,9 @@ const Section: React.FC<SectionProps> = (props) => {
 					ref={scrollRef}
 				>
 					<div className="grid grid-flow-col px-7">
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
-						<MusicCard {...props.musicCardProps} />
+						{data.map((card, index) => (
+							<MusicCard key={index} {...card} />
+						))}
 					</div>
 				</div>
 				<div className="absolute top-0 bottom-0 left-0 right-0 flex justify-between pointer-events-none">

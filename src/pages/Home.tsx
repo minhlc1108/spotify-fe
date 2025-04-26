@@ -1,41 +1,93 @@
+import { fetchListArtist } from "@/api";
 import Section from "@/components/Section";
-import React from "react";
+import { Artist } from "@/types/Artist";
+import React, { useEffect, useState } from "react";
 
-const trendingData = {
-	img: "https://i.scdn.co/image/ab67616d00001e02e1b8e368ceafe1117e846859",
-	title: "Take Me",
-	artist: "G-Dragon",
-};
+const trendingData = [
+	{
+		id: "1",
+		img: "https://i.scdn.co/image/ab67616d00001e02e1b8e368ceafe1117e846859",
+		title: "Take Me",
+		artist: "G-Dragon",
+	},
+	{
+		id: "2",
+		img: "https://i.scdn.co/image/ab67616d00001e02e1b8e368ceafe1117e846859",
+		title: "Take Me",
+		artist: "G-Dragon",
+	},
+];
 
-const popularArtistData = {
-	img: "https://i.scdn.co/image/ab676161000051745a79a6ca8c60e4ec1440be53",
-	title: "Sơn Tùng M-TP",
-	artist: "Artist",
-};
+const popularAlbumData = [
+	{
+		id: "1",
+		img: "https://i.scdn.co/image/ab67616d00001e02aa8b2071efbaa7ec3f41b60b",
+		title: "Dữ liệu quý",
+		artist: "Dương Domic",
+	},
+	{
+		id: "2",
+		img: "https://i.scdn.co/image/ab67616d00001e02aa8b2071efbaa7ec3f41b60b",
+		title: "Dữ liệu quý",
+		artist: "Dương Domic",
+	},
+];
 
-const popularAlbumData = {
-	img: "https://i.scdn.co/image/ab67616d00001e02aa8b2071efbaa7ec3f41b60b",
-	title: "Dữ liệu quý",
-	artist: "Dương Domic",
-};
-
-const featureData = {
-	img: "https://charts-images.scdn.co/assets/locale_en/regional/daily/region_vn_default.jpg",
-	title: "Top 50 songs VietNam",
-	artist: "",
-};
 const Home: React.FC = () => {
+	const [artists, setArtists] = useState<Artist[]>([]);
+
+	useEffect(() => {
+		fetchListArtist()
+			.then((data: Artist[]) => setArtists(data))
+			.catch((error) => {
+				console.log(error);
+			});
+	}, []);
+
 	return (
 		<section className="py-1">
 			<div className="px-10 ">
-				<Section musicCardProps={{ data: trendingData, shape: "square" }} title="Trending Songs" url=""></Section>
-				<Section musicCardProps={{ data: popularArtistData, shape: "circle" }} title="Poplar Artist" url=""></Section>
 				<Section
-					musicCardProps={{ data: popularAlbumData, shape: "square" }}
-					title="Poplar album and singles "
+					title="Trending Songs"
 					url=""
-				></Section>
-				<Section musicCardProps={{ data: featureData, shape: "square" }} title="Featured Charts" url=""></Section>
+					data={trendingData.map((data) => ({
+						data: {
+							id: data.id,
+							img: data.img,
+							title: data.title,
+							artist: data.artist,
+						},
+						shape: "square",
+					}))}
+				/>
+
+				<Section
+					title="Popular Artists"
+					url="/artists"
+					data={artists.map((artist) => ({
+						data: {
+							id: artist.id,
+							img: artist.image,
+							title: artist.name,
+							artist: "Artist",
+						},
+						shape: "circle",
+					}))}
+				/>
+
+				<Section
+					title="Poplar album and singles"
+					url="/artists"
+					data={popularAlbumData.map((data) => ({
+						data: {
+							id: data.id,
+							img: data.img,
+							title: data.title,
+							artist: data.artist,
+						},
+						shape: "square",
+					}))}
+				/>
 			</div>
 		</section>
 	);
