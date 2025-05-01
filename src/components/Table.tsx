@@ -36,12 +36,12 @@ const Table: React.FC = () => {
 	return (
 		<div className="mt-10">
 			<div className=" flex flex-row justify-between m-5 ">
-				<div className=" flex-row flex items-center gap-4" >
+				<div className=" flex-row flex items-center gap-4">
 					<button className="bg-green-600 text-black p-1 rounded-full w-10 h-10  flex items-center justify-center shadow-xl ">
 						<PlayIcon className="w-3/5 h-3/5 " />
 					</button>
-					<button className="rotate-45 ">
-						<PlusCirle fontSize={8} />
+					<button className="w-4 h-4">
+						<PlusCirle fill="#fff" />
 					</button>
 					<button>
 						<MoreIcon />
@@ -80,8 +80,8 @@ const Table: React.FC = () => {
 					{/* Cột Time có hiệu ứng hover */}
 					<div className="col-span-2 flex justify-end items-center gap-3">
 						<div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-							<button className="text-white opacity-80 rotate-45 ">
-								<PlusCirle />
+							<button className="w-4 h-4 text-white opacity-80">
+								<PlusCirle fill="#fff" />
 							</button>
 						</div>
 						{/* Luôn hiển thị thời gian */}

@@ -1,12 +1,20 @@
-import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Library from "@/components/Library";
 import Queue from "@/components/Queue";
 import { MusicPlayerProvider } from "@/context/MusicPlayerContext";
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import PlayBar from "@/components/PlayBar";
+import { useAppDispatch } from "@/hooks/useRedux";
+import { fetchPlayState } from "@/store/slices/playStateSlice";
 
 const MainLayout: React.FC = () => {
+	const dispatch = useAppDispatch();
+	useEffect(() => {
+		dispatch(fetchPlayState())
+			.then((res) => {})
+			.catch((err) => {});
+	}, [dispatch]);
 	return (
 		<MusicPlayerProvider>
 			<div
@@ -43,7 +51,7 @@ const MainLayout: React.FC = () => {
 					<Queue />
 				</div>
 				<div className="min-h-[70px]" style={{ gridArea: "nowplaying-bar" }}>
-					<Footer />
+					<PlayBar />
 				</div>
 			</div>
 		</MusicPlayerProvider>
