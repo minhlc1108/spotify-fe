@@ -29,3 +29,39 @@ body {
 		overflow: hidden; /* Ẩn scrollbar toàn bộ */
 	}
 }
+
+.custom-slider {
+	@apply appearance-none h-1 w-full bg-neutral-500 rounded-full relative cursor-pointer;
+	background: linear-gradient(to right, #1db954 var(--progress), #404040 var(--progress));
+}
+
+.custom-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	@apply w-2 h-2 rounded-full bg-white;
+	transition: all 0.3s cubic-bezier(0.47, 1.64, 0.41, 0.8);
+}
+
+.custom-slider::-moz-range-thumb {
+	@apply w-2 h-2 rounded-full bg-white;
+	border: none;
+	transition: all 0.3s cubic-bezier(0.47, 1.64, 0.41, 0.8);
+}
+
+/* Hover + focus effect */
+.custom-slider:hover::-webkit-slider-thumb,
+.custom-slider:focus::-webkit-slider-thumb {
+	box-shadow: 0px 0px 0px 8px rgb(0 0 0 / 16%);
+}
+
+.custom-slider:active::-webkit-slider-thumb {
+	@apply w-5 h-5;
+}
+
+.custom-slider:hover::-moz-range-thumb,
+.custom-slider:focus::-moz-range-thumb {
+	box-shadow: 0px 0px 0px 8px rgb(0 0 0 / 16%);
+}
+
+.custom-slider:active::-moz-range-thumb {
+	@apply w-5 h-5;
+}

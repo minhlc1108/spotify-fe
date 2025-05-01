@@ -2,7 +2,7 @@ export interface Artist {
 	id: string;
 	name: string;
 	gender: "M" | "F";
-	image: string;
+	image: string | null;
 	bio: string;
-	created_at: string;
+	createdAt: string;
 }

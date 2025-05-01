@@ -57,7 +57,7 @@ const Home: React.FC = () => {
 							title: data.title,
 							artist: data.artist,
 						},
-						shape: "square",
+						context: "track",
 					}))}
 				/>
 
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
 							title: artist.name,
 							artist: "Artist",
 						},
-						shape: "circle",
+						context: "artist",
 					}))}
 				/>
 
@@ -85,7 +85,7 @@ const Home: React.FC = () => {
 							title: data.title,
 							artist: data.artist,
 						},
-						shape: "square",
+						context: "artist",
 					}))}
 				/>
 			</div>

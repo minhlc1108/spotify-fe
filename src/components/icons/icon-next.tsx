@@ -1,4 +1,5 @@
-const NextIcon = ({ width = 24, height = 24 }): JSX.Element => {
+import type { SVGProps } from "react";
+const NextIcon = (props: SVGProps<SVGSVGElement>): JSX.Element => {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -8,9 +9,7 @@ const NextIcon = ({ width = 24, height = 24 }): JSX.Element => {
 			fillRule="evenodd"
 			clipRule="evenodd"
 			viewBox="0 0 511 510.43"
-			width={width}
-			height={height}
-			fill="white" // Màu trắng cố định
+			{...props}
 		>
 			<path
 				fillRule="nonzero"
