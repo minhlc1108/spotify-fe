@@ -21,6 +21,7 @@ export type TrackType = {
 	url_mp3: string;
 	popular_tracks_by_artist: TrackCardTypeList[];
 	popular_albums_by_artist: AlbumCardTypeGrid[];
+	type:string ;
 };
 export type Artist = {
 	name: string;
@@ -133,6 +134,7 @@ const Track = () => {
 				playcount: 1234567,
 			},
 		],
+		type: "song"
 	};
 	const json1: TrackType = {
 		id_track: "noca123",
@@ -196,6 +198,7 @@ const Track = () => {
 				playcount: 1234567,
 			},
 		],
+		type: "song"
 	};
 
 	return (
