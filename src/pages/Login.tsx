@@ -1,80 +1,113 @@
-import React, { useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import Spotify from "@components/icons/icon-spotify";
 import Google from "@components/icons/icon-google";
 import Facebook from "@components/icons/icon-facebook";
 import Apple from "@components/icons/icon-apple";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { login } from "@/store/slices/authSlice";
+
+interface Errors {
+	identifier?: string;
+	password?: string;
+}
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+	const dispatch = useAppDispatch();
+	const user = useAppSelector((state) => state.auth.user);
+	const [identifier, setIdentifier] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [errors, setErrors] = useState<Errors>({});
+	const navigate = useNavigate();
+	useEffect(() => {
+		if (user) {
+			void navigate("/", { replace: true });
+		}
+	}, [user, navigate]);
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-neutral-950">
-      <div className="w-full max-w-md p-8 bg-black rounded-lg">
-        <div className="flex justify-center mb-8">
-          <Spotify fontSize={40} />
-        </div>
-        
-        <h1 className="text-2xl font-bold text-center text-white mb-8">
-          Đăng nhập vào Spotify
-        </h1>
-        
-        {/* Social login buttons */}
-        <div className="flex flex-col gap-3 mb-8">
-          <button className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <Google fontSize={20} />
-            <span>Tiếp tục bằng Google</span>
-          </button>
-          
-          <button className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <Facebook fontSize={20} />
-            <span>Tiếp tục bằng Facebook</span>
-          </button>
-          
-          <button className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <Apple fontSize={20} className="text-white" />
-            <span>Tiếp tục bằng Apple</span>
-          </button>
-          
-          <button className="flex items-center justify-center w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <span>Tiếp tục bằng số điện thoại</span>
-          </button>
-        </div>
-        
-        {/* Divider */}
-        <div className="relative mb-8">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-black text-gray-400">Email hoặc tên người dùng</span>
-          </div>
-        </div>
-        
-        {/* Email input */}
-        <div className="mb-6">
-          <input
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email hoặc tên người dùng"
-            className="w-full p-3 bg-[#121212] border border-gray-700 rounded text-white focus:outline-none focus:border-white"
-          />
-        </div>
-        
-        {/* Continue button */}
-        <button className="w-full py-3 bg-[#1ed760] hover:bg-[#1fdf64] text-black font-bold rounded-full transition-colors mb-8">
-          Tiếp tục
-        </button>
-        
-        {/* Sign up link */}
-        <div className="text-center text-gray-400">
-          <span>Bạn chưa có tài khoản? </span>
-          <Link to="/register" className="text-white hover:underline">Đăng ký Spotify</Link>
-        </div>
-      </div>
-    </div>
-  );
+	const validate = (): boolean => {
+		const newErrors: Errors = {};
+
+		if (!identifier.trim()) {
+			newErrors.identifier = "Email or username is required";
+		}
+
+		if (!password.trim()) {
+			newErrors.password = "Password is required";
+		}
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+		e.preventDefault();
+		if (!validate()) return;
+
+		const data = {
+			identifier,
+			password,
+		};
+
+		await dispatch(login(data));
+	};
+
+	return (
+		<div className="flex items-center justify-center min-h-screen bg-neutral-900 px-4">
+			<div className="w-full max-w-md p-8 bg-black rounded-lg shadow-md">
+				{/* Logo */}
+				<div className="flex justify-center mb-8">
+					<Spotify fontSize={40} />
+				</div>
+
+				{/* Title */}
+				<h1 className="text-2xl font-bold text-center text-white mb-6">Đăng nhập vào Spotify</h1>
+
+				{/* Form */}
+				<form onSubmit={handleSubmit} className="space-y-6">
+					{/* Identifier */}
+					<div>
+						<label className="block text-sm text-white mb-1">Email or username</label>
+						<input
+							type="text"
+							value={identifier}
+							onChange={(e) => setIdentifier(e.target.value)}
+							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+						{errors.identifier && <p className="text-sm text-red-500 mt-1">{errors.identifier}</p>}
+					</div>
+
+					{/* Password */}
+					<div>
+						<label className="block text-sm text-white mb-1">Password</label>
+						<input
+							type="password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+						{errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
+					</div>
+
+					{/* Submit button */}
+					<button
+						type="submit"
+						className="w-full py-2 rounded-full font-semibold bg-green-600 hover:bg-green-500 text-white transition-colors"
+					>
+						Log In
+					</button>
+				</form>
+
+				{/* Sign up */}
+				<div className="mt-6 text-center text-sm text-gray-400">
+					<span>Bạn chưa có tài khoản? </span>
+					<Link to="/register" className="text-white hover:underline">
+						Đăng ký Spotify
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
 };
 
-export default Login; 
+export default Login;

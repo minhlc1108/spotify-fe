@@ -26,37 +26,15 @@ const mockPlayState: PlayState = {
 		playCount: 126000000,
 		duration: 249, // giây
 		releaseDate: "2018-05-12",
-		album: {
-			id: "album-001",
-			title: "Chạy Ngay Đi - Single",
-			albumType: "SINGLE",
-			coverImage: "https://photo-resize-zmp3.zadn.vn/w600_r1x1_jpeg/cover/a/6/8/b/a68b0bd411adc076ba6c3fb00203a1ee.jpg",
-			releaseDate: "2018-05-12",
-			artists: [
-				{
-					id: "artist-001",
-					name: "Sơn Tùng M-TP",
-					gender: "M",
-					image: "https://spotify-clone-mnm.s3.ap-southeast-1.amazonaws.com/artists/sontungmtp.jpeg",
-					bio: "Sơn Tùng M-TP là ca sĩ, nhạc sĩ và diễn viên nổi tiếng tại Việt Nam. Anh được biết đến với phong cách âm nhạc độc đáo và lượng fan đông đảo.",
-					createdAt: "2012-01-01",
-				},
-			],
-		},
+		album: "album-id",
 		artists: [
 			{
 				id: "artist-001",
 				name: "Sơn Tùng M-TP",
-				gender: "M",
 				image: "https://spotify-clone-mnm.s3.ap-southeast-1.amazonaws.com/artists/sontungmtp.jpeg",
-				bio: "Sơn Tùng M-TP là ca sĩ, nhạc sĩ và diễn viên nổi tiếng tại Việt Nam. Anh được biết đến với phong cách âm nhạc độc đáo và lượng fan đông đảo.",
-				createdAt: "2012-01-01",
 			},
 		],
-		genres: [
-			{ id: "genre-001", name: "Pop" },
-			{ id: "genre-002", name: "V-Pop" },
-		],
+		genres: ["genre-id", "genre-id-2"],
 	},
 	isPlaying: false,
 	progress: 90,
