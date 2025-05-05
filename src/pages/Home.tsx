@@ -1,41 +1,77 @@
+import { fetchListAlbum, fetchListArtist, fetchListTrack } from "@/api";
 import Section from "@/components/Section";
-import React from "react";
+import { Album } from "@/types/Album";
+import { Artist } from "@/types/Artist";
+import { Track } from "@/types/Track";
+import React, { useEffect, useState } from "react";
 
-const trendingData = {
-	img: "https://i.scdn.co/image/ab67616d00001e02e1b8e368ceafe1117e846859",
-	title: "Take Me",
-	artist: "G-Dragon",
-};
-
-const popularArtistData = {
-	img: "https://i.scdn.co/image/ab676161000051745a79a6ca8c60e4ec1440be53",
-	title: "Sơn Tùng M-TP",
-	artist: "Artist",
-};
-
-const popularAlbumData = {
-	img: "https://i.scdn.co/image/ab67616d00001e02aa8b2071efbaa7ec3f41b60b",
-	title: "Dữ liệu quý",
-	artist: "Dương Domic",
-};
-
-const featureData = {
-	img: "https://charts-images.scdn.co/assets/locale_en/regional/daily/region_vn_default.jpg",
-	title: "Top 50 songs VietNam",
-	artist: "",
-};
 const Home: React.FC = () => {
+	const [artists, setArtists] = useState<Artist[]>([]);
+	const [tracks, setTracks] = useState<Track[]>([]);
+	const [albums, setAlbums] = useState<Album[]>([]);
+	useEffect(() => {
+		fetchListArtist()
+			.then((data: Artist[]) => setArtists(data))
+			.catch((error) => {
+				console.log(error);
+			});
+		fetchListAlbum()
+			.then((data: Album[]) => setAlbums(data))
+			.catch((error) => {
+				console.log(error);
+			});
+
+		fetchListTrack()
+			.then((data: Track[]) => setTracks(data))
+			.catch((error) => {
+				console.log(error);
+			});
+	}, []);
+
 	return (
 		<section className="py-1">
 			<div className="px-10 ">
-				<Section musicCardProps={{ data: trendingData, shape: "square" }} title="Trending Songs" url=""></Section>
-				<Section musicCardProps={{ data: popularArtistData, shape: "circle" }} title="Poplar Artist" url=""></Section>
 				<Section
-					musicCardProps={{ data: popularAlbumData, shape: "square" }}
-					title="Poplar album and singles "
+					title="Trending Songs"
 					url=""
-				></Section>
-				<Section musicCardProps={{ data: featureData, shape: "square" }} title="Featured Charts" url=""></Section>
+					data={tracks.map((data) => ({
+						data: {
+							id: data.id,
+							img: data.coverImage,
+							title: data.title,
+							artist: data.artists.map((artist) => artist.name).join(", "),
+						},
+						context: "track",
+					}))}
+				/>
+
+				<Section
+					title="Popular Artists"
+					url="/artists"
+					data={artists.map((artist) => ({
+						data: {
+							id: artist.id,
+							img: artist.image,
+							title: artist.name,
+							artist: "Artist",
+						},
+						context: "artist",
+					}))}
+				/>
+
+				<Section
+					title="Poplar album and singles"
+					url="/artists"
+					data={albums.map((data) => ({
+						data: {
+							id: data.id,
+							img: data.coverImage,
+							title: data.title,
+							artist: data.artists.map((artist) => artist.name).join(", "),
+						},
+						context: "album",
+					}))}
+				/>
 			</div>
 		</section>
 	);

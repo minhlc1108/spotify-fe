@@ -48,7 +48,7 @@ type AlbumCardTypeGrid = {
 	playcount: number;
 };
 
-const Track = () => {
+const Track = (): React.FC => {
 	const json: TrackType = {
 		id_track: "kck5bchzp6",
 		title: "Đừng làm trái tim anh đau",
@@ -242,7 +242,7 @@ const Track = () => {
 					<Lyrics lyrics={json.lyrics} />
 				</div>
 				<div className="flex-[2] flex-wrap">
-					<ArtistList/>
+					<ArtistList />
 				</div>
 			</div>
 
@@ -252,7 +252,7 @@ const Track = () => {
 					<br />
 					{json.creatorArtist.name}
 				</h2>
-				<PopularTrack/>
+				<PopularTrack />
 			</div>
 			<div className="px-10">
 				<h2 className="text-2xl font-bold">
@@ -275,7 +275,6 @@ const Track = () => {
 			</div>
 			<div className="p-5">
 				<h2 className="text-2xl font-bold">Popular Release by {json.creatorArtist.name}</h2>
-				
 			</div>
 		</div>
 	);
