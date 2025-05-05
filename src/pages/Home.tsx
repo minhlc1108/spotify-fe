@@ -1,44 +1,28 @@
-import { fetchListArtist } from "@/api";
+import { fetchListAlbum, fetchListArtist, fetchListTrack } from "@/api";
 import Section from "@/components/Section";
+import { Album } from "@/types/Album";
 import { Artist } from "@/types/Artist";
+import { Track } from "@/types/Track";
 import React, { useEffect, useState } from "react";
-
-const trendingData = [
-	{
-		id: "1",
-		img: "https://i.scdn.co/image/ab67616d00001e02e1b8e368ceafe1117e846859",
-		title: "Take Me",
-		artist: "G-Dragon",
-	},
-	{
-		id: "2",
-		img: "https://i.scdn.co/image/ab67616d00001e02e1b8e368ceafe1117e846859",
-		title: "Take Me",
-		artist: "G-Dragon",
-	},
-];
-
-const popularAlbumData = [
-	{
-		id: "1",
-		img: "https://i.scdn.co/image/ab67616d00001e02aa8b2071efbaa7ec3f41b60b",
-		title: "Dữ liệu quý",
-		artist: "Dương Domic",
-	},
-	{
-		id: "2",
-		img: "https://i.scdn.co/image/ab67616d00001e02aa8b2071efbaa7ec3f41b60b",
-		title: "Dữ liệu quý",
-		artist: "Dương Domic",
-	},
-];
 
 const Home: React.FC = () => {
 	const [artists, setArtists] = useState<Artist[]>([]);
-
+	const [tracks, setTracks] = useState<Track[]>([]);
+	const [albums, setAlbums] = useState<Album[]>([]);
 	useEffect(() => {
 		fetchListArtist()
 			.then((data: Artist[]) => setArtists(data))
+			.catch((error) => {
+				console.log(error);
+			});
+		fetchListAlbum()
+			.then((data: Album[]) => setAlbums(data))
+			.catch((error) => {
+				console.log(error);
+			});
+
+		fetchListTrack()
+			.then((data: Track[]) => setTracks(data))
 			.catch((error) => {
 				console.log(error);
 			});
@@ -50,12 +34,12 @@ const Home: React.FC = () => {
 				<Section
 					title="Trending Songs"
 					url=""
-					data={trendingData.map((data) => ({
+					data={tracks.map((data) => ({
 						data: {
 							id: data.id,
-							img: data.img,
+							img: data.coverImage,
 							title: data.title,
-							artist: data.artist,
+							artist: data.artists.map((artist) => artist.name).join(", "),
 						},
 						context: "track",
 					}))}
@@ -78,14 +62,14 @@ const Home: React.FC = () => {
 				<Section
 					title="Poplar album and singles"
 					url="/artists"
-					data={popularAlbumData.map((data) => ({
+					data={albums.map((data) => ({
 						data: {
 							id: data.id,
-							img: data.img,
+							img: data.coverImage,
 							title: data.title,
-							artist: data.artist,
+							artist: data.artists.map((artist) => artist.name).join(", "),
 						},
-						context: "artist",
+						context: "album",
 					}))}
 				/>
 			</div>
