@@ -25,7 +25,7 @@ const Album: React.FC = () => {
 		return <div>Loading...</div>; // Show a loading state while fetching data
 	}
 	return (
-		<div className="w-full h-full p-6 bg-gradient-to-b from-zinc-900 via-zinc-800 to-black text-white flex flex-col gap-6">
+		<div className="w-full min-h-full p-6 bg-gradient-to-b from-zinc-900 via-zinc-800 to-black text-white flex flex-col gap-6">
 			<AlbumHeader
 				type={albumDetail?.albumType}
 				title={albumDetail?.title}

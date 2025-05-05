@@ -1,5 +1,5 @@
 import { Album, AlbumDetail } from "@/types/Album";
-import { Artist } from "@/types/Artist";
+import { Artist, ArtistDetail } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
 import { Track, TrackDetail } from "@/types/Track";
 import api from "@/utils/axios";
@@ -98,6 +98,18 @@ export const fetchAlbumDetailAPI = async (id: string): Promise<AlbumDetail | nul
 		}
 	} catch (error) {
 		console.error("Error fetching album detail:", error);
+	}
+	return null;
+};
+
+export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | null> => {
+	try {
+		const response = await api.get(`/artists/${id}`);
+		if (response.status === 200) {
+			return response.data as ArtistDetail;
+		}
+	} catch (error) {
+		console.error("Error fetching artist detail:", error);
 	}
 	return null;
 };

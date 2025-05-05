@@ -6,6 +6,7 @@ import List from "./icons/icon-list";
 import DownloadIcon from "./icons/icon-download";
 import { SimpleTrack } from "@/types/Track";
 import { formatSecondsToMinutes } from "@/utils/format";
+import { Link } from "react-router-dom";
 
 interface TableProps {
 	title: string;
@@ -15,7 +16,7 @@ interface TableProps {
 const Table: React.FC<TableProps> = ({ title, tracks }) => {
 	return (
 		<div className="mt-10">
-			<div className=" flex flex-row items-center justify-between m-5 ">
+			<div className="flex flex-row items-center justify-between m-5 ">
 				<div className=" flex-row flex items-center gap-4">
 					<button className="bg-green-600 text-black p-1 rounded-full w-10 h-10  flex items-center justify-center shadow-xl ">
 						<PlayIcon className="w-3/5 h-3/5 " />
@@ -57,7 +58,9 @@ const Table: React.FC<TableProps> = ({ title, tracks }) => {
 					<PlayIcon className="col-span-1 hidden group-hover:block w-4 h-4" fill="white" />
 					<div className="col-span-6 flex items-center gap-4 truncate">
 						<img className="w-10 h-10 rounded" src={item.coverImage || "/default.png"} alt={item.title} />
-						<span className="truncate text-sm opacity-70">{item.title}</span>
+						<Link to={`/track/${item.id}`} className="hover:underline">
+							<span className="truncate text-sm opacity-70">{item.title}</span>
+						</Link>
 					</div>
 					<p className="col-span-3 text-sm text-center opacity-70">
 						{item?.artists?.map((artist) => artist.name).join(", ")}
