@@ -1,7 +1,23 @@
 // src/utils/apiClient.ts
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
+import { RootState } from "@/store";
+import { Store } from "@reduxjs/toolkit";
+import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from "axios";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
+
+let isRefreshing = false;
+let failedQueue: Array<{
+	resolve: (value?: AxiosResponse) => void;
+	reject: (error?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown): void => {
+	failedQueue.forEach((prom) => {
+		if (error) prom.reject(error);
+		else prom.resolve();
+	});
+	failedQueue = [];
+};
 
 const api: AxiosInstance = axios.create({
 	baseURL: "http://localhost:8000/api",
@@ -12,6 +28,11 @@ const api: AxiosInstance = axios.create({
 	},
 });
 
+let store: Store<RootState>;
+
+export const injectStore = (_store: Store<RootState>): void => {
+	store = _store;
+};
 // Request interceptor: camelCase → snake_case
 api.interceptors.request.use(
 	(config) => {
@@ -20,7 +41,7 @@ api.interceptors.request.use(
 		}
 		return config;
 	},
-	(error: AxiosError): Promise<AxiosError> => {
+	(error: AxiosError) => {
 		return Promise.reject(error);
 	}
 );
@@ -39,7 +60,39 @@ api.interceptors.response.use(
 		}
 		return response;
 	},
-	(error: AxiosError): Promise<AxiosError> => {
+	async (error: AxiosError & { config?: InternalAxiosRequestConfig & { _retry?: boolean } }) => {
+		const originalRequest = error.config!;
+		if (
+			error.response?.status === 401 &&
+			!originalRequest._retry &&
+			!originalRequest.url?.includes("/auth/refreshToken/")
+		) {
+			originalRequest._retry = true;
+
+			if (isRefreshing) {
+				return new Promise<AxiosResponse>((resolve, reject) => {
+					failedQueue.push({ resolve, reject } as {
+						resolve: (value?: AxiosResponse) => void;
+						reject: (error?: unknown) => void;
+					});
+				}).then(() => api(originalRequest));
+			}
+
+			isRefreshing = true;
+			try {
+				// Gọi endpoint refreshToken (cookie sẽ được gửi tự động)
+				await api.post("/auth/refreshToken/");
+				processQueue(null);
+				return api(originalRequest);
+			} catch (refreshError) {
+				// TODO: dispatch logout or redirect to /login
+				processQueue(refreshError);
+				return Promise.reject(refreshError instanceof Error ? refreshError : new Error(String(refreshError)));
+			} finally {
+				isRefreshing = false;
+			}
+		}
+
 		return Promise.reject(error);
 	}
 );

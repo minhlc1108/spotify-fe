@@ -1,0 +1,66 @@
+import { loginAPI, logoutAPI } from "@/api";
+import { AuthLogin, User } from "@/types/Auth";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface AuthState {
+	user: User | null;
+	status: "idle" | "loading" | "succeeded" | "failed";
+	error: string | null;
+}
+
+// Initial state
+const initialState: AuthState = {
+	user: null,
+	status: "idle",
+	error: null,
+};
+
+export const login = createAsyncThunk("auth/login", async (credentials: AuthLogin, { rejectWithValue }) => {
+	try {
+		const response = await loginAPI(credentials);
+		return response as unknown as User; // Ensure the response matches the User type
+	} catch (err) {
+		const error = err as { response?: { data?: { detail?: string } } };
+		return rejectWithValue(error.response?.data?.detail || "Login failed");
+	}
+});
+
+export const logout = createAsyncThunk("auth/logout", async (_, { rejectWithValue }) => {
+	try {
+		await logoutAPI();
+	} catch (err) {
+		const error = err as { response?: { data?: { detail?: string } } };
+		return rejectWithValue(error.response?.data?.detail || "Logout failed");
+	}
+});
+
+const authSlice = createSlice({
+	name: "auth",
+	initialState,
+	reducers: {},
+	extraReducers: (builder) => {
+		builder
+			.addCase(login.pending, (state) => {
+				state.status = "loading";
+				state.error = null;
+			})
+			.addCase(login.fulfilled, (state, action: PayloadAction<User>) => {
+				state.status = "succeeded";
+				state.user = action.payload;
+			})
+			.addCase(login.rejected, (state, action) => {
+				state.status = "failed";
+				state.error = action.payload as string;
+			})
+			// logout
+			.addCase(logout.fulfilled, (state) => {
+				state.user = null;
+				state.status = "idle";
+			})
+			.addCase(logout.rejected, (state, action) => {
+				state.error = action.payload as string;
+			});
+	},
+});
+
+export default authSlice.reducer;

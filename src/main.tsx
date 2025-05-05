@@ -4,10 +4,17 @@ import "@assets/styles/global.css";
 import App from "./App.tsx";
 import { Provider } from "react-redux";
 import { store } from "@store/index.ts";
+import { PersistGate } from "redux-persist/integration/react";
+import { injectStore } from "./utils/axios.ts";
+import { persistStore } from "redux-persist";
+injectStore(store);
+const persitor = persistStore(store);
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<Provider store={store}>
-			<App />
+			<PersistGate loading={null} persistor={persitor}>
+				<App />
+			</PersistGate>
 		</Provider>
 	</StrictMode>
 );
