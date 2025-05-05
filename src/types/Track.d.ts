@@ -8,6 +8,7 @@ export interface SimpleTrack {
 	duration: number;
 	artists: SimpleArtist[];
 	coverImage: string | null;
+	playCount: number;
 }
 
 export interface Track {
