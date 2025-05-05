@@ -3,23 +3,23 @@ import { SimpleArtist } from "@/types/Artist";
 import { formatSecondsToMinutes } from "@/utils/format";
 import { Link } from "react-router-dom";
 
-interface TrackHeaderProps {
+interface AlbumHeaderProps {
+	type: string;
 	title: string;
 	artists: SimpleArtist[];
-	album: SimpleAlbum;
 	coverUrl: string | null;
+	songCount: number;
 	duration: number;
 	releaseDate: string;
-	playCount: number;
 }
-const TrackHeader: React.FC<TrackHeaderProps> = ({
+const AlbumHeader: React.FC<AlbumHeaderProps> = ({
+	type,
 	title,
 	artists,
-	album,
 	coverUrl,
 	duration,
+	songCount,
 	releaseDate,
-	playCount,
 }) => {
 	return (
 		<div className="flex flex-col md:flex-row items-center gap-6">
@@ -29,7 +29,7 @@ const TrackHeader: React.FC<TrackHeaderProps> = ({
 				className="w-48 h-48 rounded-xl shadow-lg object-cover"
 			/>
 			<div className="align-bottom text-center md:text-left">
-				<h2 className="text-sm text-gray-400">Song</h2>
+				<h2 className="text-sm text-gray-400">{type}</h2>
 				<h1 className="text-4xl font-bold text-white">{title}</h1>
 				<div className="flex items-center mt-1 gap-2 flex-wrap">
 					{artists?.map((artist, index) => (
@@ -40,15 +40,12 @@ const TrackHeader: React.FC<TrackHeaderProps> = ({
 							•
 						</>
 					))}
-					<Link to={`/album/${album?.id}`} className="text-gray-300 hover:underline">
-						<p className="text-gray-300">{album?.title}</p>
-					</Link>
-					•<p className="text-gray-100">{new Date(releaseDate).getFullYear()}</p>•
-					<p className="text-gray-100">{formatSecondsToMinutes(duration)}</p>•
-					<p className="text-gray-100">{playCount}</p>
+					<p className="text-gray-100">{new Date(releaseDate).getFullYear()}</p>•
+					<p className="text-gray-100">{songCount} songs,</p>
+					<p className="text-gray-100">{`${Math.floor(duration / 60)} min ${duration % 60} sec`}</p>
 				</div>
 			</div>
 		</div>
 	);
 };
-export default TrackHeader;
+export default AlbumHeader;

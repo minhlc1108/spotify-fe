@@ -43,7 +43,6 @@ const Section: React.FC<SectionProps> = ({ data, title, url }) => {
 			scrollElement?.removeEventListener("scroll", checkScroll);
 		};
 	}, []);
-
 	return (
 		<section className="flex flex-col gap-2">
 			<div className="flex justify-between items-end min-h-12 ">
@@ -61,9 +60,7 @@ const Section: React.FC<SectionProps> = ({ data, title, url }) => {
 					ref={scrollRef}
 				>
 					<div className="grid grid-flow-col px-7">
-						{data.map((card, index) => (
-							<MusicCard key={index} {...card} />
-						))}
+						{data && data.map((card, index) => <MusicCard key={index} {...card} />)}
 					</div>
 				</div>
 				<div className="absolute top-0 bottom-0 left-0 right-0 flex justify-between pointer-events-none">

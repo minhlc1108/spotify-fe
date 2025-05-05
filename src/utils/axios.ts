@@ -86,6 +86,7 @@ api.interceptors.response.use(
 				return api(originalRequest);
 			} catch (refreshError) {
 				// TODO: dispatch logout or redirect to /login
+				store.dispatch({ type: "auth/logout" });
 				processQueue(refreshError);
 				return Promise.reject(refreshError instanceof Error ? refreshError : new Error(String(refreshError)));
 			} finally {
