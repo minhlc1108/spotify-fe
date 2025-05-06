@@ -1,89 +1,146 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Spotify from "@components/icons/icon-spotify";
-import Google from "@components/icons/icon-google";
-import Facebook from "@components/icons/icon-facebook";
-import Apple from "@components/icons/icon-apple";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { register } from "@/store/slices/authSlice";
 
+interface Errors {
+	username?: string;
+	email?: string;
+	password?: string;
+	rePassword?: string;
+}
 const Register: React.FC = () => {
-	const [email, setEmail] = useState("");
+	const [username, setUsername] = useState<string>("");
+	const [email, setEmail] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [rePassword, setRePassword] = useState<string>("");
+	const [errors, setErrors] = useState<Errors>({});
+	const dispatch = useAppDispatch();
+	const user = useAppSelector((state) => state.auth.user);
+	const { status } = useAppSelector((state) => state.auth);
+	const navigate = useNavigate();
+	useEffect(() => {
+		if (user) {
+			void navigate("/", { replace: true });
+		}
+	}, [user, navigate]);
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-neutral-950">
-      <div className="w-full max-w-md p-8 bg-black rounded-lg">
-        <div className="flex justify-center mb-8">
-          <Spotify fontSize={40} />
-        </div>
-        
-        <h1 className="text-2xl font-bold text-center text-white mb-8">
-          Đăng ký để bắt đầu nghe
-        </h1>
-        
-        {/* Email input */}
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
-            Địa chỉ email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@domain.com"
-            className="w-full p-3 bg-[#121212] border border-gray-700 rounded text-white focus:outline-none focus:border-white"
-          />
-        </div>
-        
-        {/* Phone number link */}
-        <div className="mb-6 text-center">
-          <Link to="/signup-phone" className="text-[#1ed760] hover:underline">
-            Dùng số điện thoại
-          </Link>
-        </div>
-        
-        {/* Continue button */}
-        <button className="w-full py-3 bg-[#1ed760] hover:bg-[#1fdf64] text-black font-bold rounded-full transition-colors mb-8">
-          Tiếp theo
-        </button>
-        
-        {/* Divider */}
-        <div className="relative mb-8">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-black text-gray-400">hoặc</span>
-          </div>
-        </div>
-        
-        {/* Social signup buttons */}
-        <div className="flex flex-col gap-3 mb-8">
-          <button className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <Google fontSize={20} />
-            <span>Đăng ký bằng Google</span>
-          </button>
-          
-          <button className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <Facebook fontSize={20} />
-            <span>Đăng ký bằng Facebook</span>
-          </button>
-          
-          <button className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-full border border-gray-700 text-white hover:border-white transition-colors">
-            <Apple fontSize={20} className="text-white" />
-            <span>Đăng ký bằng Apple</span>
-          </button>
-        </div>
-        
-        {/* Login link */}
-        <div className="text-center text-gray-400">
-          <span>Bạn đã có tài khoản? </span>
-          <Link to="/login" className="text-white hover:underline">Đăng nhập tại đây</Link>
-        </div>
-      </div>
-    </div>
-  );
-	
+	const validate = (): boolean => {
+		const newErrors: Errors = {};
+		if (!username.trim()) newErrors.username = "Vui lòng nhập username.";
+		if (!email.trim()) newErrors.email = "Vui lòng nhập email.";
+		else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email không hợp lệ.";
+		if (!password) newErrors.password = "Vui lòng nhập mật khẩu.";
+		else if (password.length < 6) newErrors.password = "Mật khẩu tối thiểu 6 ký tự.";
+		if (rePassword !== password) newErrors.rePassword = "Mật khẩu không khớp.";
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+		e.preventDefault();
+		// Handle form submission logic here
+		if (!validate()) return;
+
+		const data = {
+			username,
+			email,
+			password,
+			rePassword,
+		};
+		const resultAction = await dispatch(register(data));
+		if (register.rejected.match(resultAction)) {
+			// Lỗi đăng ký, bạn có thể lấy message từ error state
+		}
+	};
+
+	return (
+		<div className="flex items-center justify-center min-h-screen bg-neutral-950">
+			<div className="w-full max-w-md p-8 bg-black rounded-lg">
+				<div className="flex justify-center mb-8">
+					<Spotify fontSize={40} />
+				</div>
+				<h1 className="text-2xl font-bold text-center text-white mb-8">Đăng ký để bắt đầu nghe</h1>
+				<form onSubmit={handleSubmit} className="space-y-6">
+					<div>
+						<label className="block text-sm text-white mb-1">Username</label>
+						<input
+							type="text"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+						{errors.username && <p className="text-sm text-red-500 mt-1">{errors.username}</p>}
+					</div>
+					<div>
+						<label className="block text-sm text-white mb-1">Email</label>
+						<input
+							type="email"
+							autoComplete="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+						{errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
+					</div>
+					{/* Password */}
+					<div>
+						<label className="block text-sm text-white mb-1">Password</label>
+						<input
+							type="password"
+							value={password}
+							autoComplete="new-password"
+							onChange={(e) => setPassword(e.target.value)}
+							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+						{errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
+					</div>
+
+					<div>
+						<label className="block text-sm text-white mb-1">Re-password</label>
+						<input
+							type="password"
+							autoComplete="re-password"
+							value={rePassword}
+							onChange={(e) => setRePassword(e.target.value)}
+							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+						/>
+						{errors.rePassword && <p className="text-sm text-red-500 mt-1">{errors.rePassword}</p>}
+					</div>
+					{/* Submit button */}
+					<button
+						disabled={status === "loading"}
+						type="submit"
+						className="w-full py-2 rounded-full font-semibold bg-green-600 hover:bg-green-500 text-white transition-colors"
+					>
+						{status === "loading" ? (
+							<div className="flex justify-center">
+								<svg
+									className="animate-spin h-5 w-5 text-white"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+									<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+								</svg>
+							</div>
+						) : (
+							"Đăng ký"
+						)}
+					</button>
+				</form>
+				<div className="text-center text-gray-400 mt-2">
+					<span>Bạn đã có tài khoản? </span>
+					<Link to="/login" className="text-white hover:underline">
+						Đăng nhập tại đây
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default Register;

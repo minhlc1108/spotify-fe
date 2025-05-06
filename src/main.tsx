@@ -7,6 +7,7 @@ import { store } from "@store/index.ts";
 import { PersistGate } from "redux-persist/integration/react";
 import { injectStore } from "./utils/axios.ts";
 import { persistStore } from "redux-persist";
+import { ToastContainer } from "react-toastify";
 injectStore(store);
 const persitor = persistStore(store);
 createRoot(document.getElementById("root")!).render(
@@ -14,6 +15,7 @@ createRoot(document.getElementById("root")!).render(
 		<Provider store={store}>
 			<PersistGate loading={null} persistor={persitor}>
 				<App />
+				<ToastContainer />
 			</PersistGate>
 		</Provider>
 	</StrictMode>
