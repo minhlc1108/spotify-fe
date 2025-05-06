@@ -4,7 +4,7 @@ import PlayIcon from "@components/icons/icon-play";
 import VolumnIcon from "@components/icons/icon-volumn";
 import PauseIcon from "./icons/icon-pause";
 
-interface Props {
+interface LibraryItemProps {
 	_id: string;
 	title: string;
 	type: string;
@@ -15,12 +15,12 @@ interface Props {
 	isPlayingBar: boolean;
 }
 
-function LibraryItem(props: Props) {
+const LibraryItem: React.FC<LibraryItemProps> = (props) => {
 	const [isShowing, setIsShowing] = useState<boolean>(props.isShowing);
 	const [isPlaying, setIsPlaying] = useState<boolean>(props.isPlaying);
 	const [isPlayingBar, setIsPlayingBar] = useState<boolean>(props.isPlayingBar);
 	return (
-		<Link to={`/${props.type}/${props._id}`}>
+		<Link to={`/${props.type}/${props._id}`} onClick={() => setIsShowing(true)}>
 			<div
 				className={`group grid p-2 gap-3 ${isShowing ? "bg-evevatedHighlight hover:bg-[#ffffff36]" : "bg-transparent hover:bg-evevatedBase"}  rounded-md`}
 				style={{
@@ -60,6 +60,6 @@ function LibraryItem(props: Props) {
 			</div>
 		</Link>
 	);
-}
+};
 
 export default LibraryItem;

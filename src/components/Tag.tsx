@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-interface Props {
+interface TagProps {
 	title: string;
 }
-function Tag(props: Props) {
+const Tag: React.FC<TagProps> = (props) => {
 	const [isActive, setIsActive] = useState(false);
 	return (
 		<button
@@ -17,6 +17,6 @@ function Tag(props: Props) {
 			</span>
 		</button>
 	);
-}
+};
 
 export default Tag;

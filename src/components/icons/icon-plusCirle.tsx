@@ -1,10 +1,17 @@
 import type { SVGProps } from "react";
 
 const PlusCirle = (props: SVGProps<SVGSVGElement>): JSX.Element => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-5">
-    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-  </svg>
-  
+	<svg
+		data-encore-id="icon"
+		role="img"
+		aria-hidden="true"
+		className="e-9812-icon e-9812-baseline"
+		viewBox="0 0 16 16"
+		{...props}
+	>
+		<path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"></path>
+		<path d="M11.75 8a.75.75 0 0 1-.75.75H8.75V11a.75.75 0 0 1-1.5 0V8.75H5a.75.75 0 0 1 0-1.5h2.25V5a.75.75 0 0 1 1.5 0v2.25H11a.75.75 0 0 1 .75.75z"></path>
+	</svg>
 );
 
-export default PlusCirle; 
+export default PlusCirle;

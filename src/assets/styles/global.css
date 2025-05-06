@@ -7,39 +7,61 @@ body {
 }
 @layer base {
 	/* Dành cho trình duyệt WebKit (Chrome, Safari, Edge) */
+
 	::-webkit-scrollbar {
-		@apply w-2 h-2;
+		width: 14px;
 	}
-
-	::-webkit-scrollbar-track {
-		@apply bg-transparent;
-	}
-
 	::-webkit-scrollbar-thumb {
-		@apply bg-transparent rounded-full transition-colors duration-300;
+		background-color: hsla(0, 0%, 100%, 0.3);
 	}
 
-	/* Hiện scrollbar khi hover */
-	:hover::-webkit-scrollbar-thumb {
-		@apply bg-[#535353];
+	::-webkit-scrollbar-thumb:hover {
+		background-color: hsla(0, 0%, 100%, 0.5);
+	}
+	::-webkit-scrollbar-thumb:active {
+		background-color: hsla(0, 0%, 100%, 0.7);
 	}
 
-	/* Scrollbar khi active */
-	:active::-webkit-scrollbar-thumb {
-		@apply bg-[#b3b3b3];
+	body::-webkit-scrollbar {
+		display: none;
 	}
+	body {
+		overflow: hidden; /* Ẩn scrollbar toàn bộ */
+	}
+}
 
-	/* Dành cho Firefox */
-	html {
-		scrollbar-color: transparent transparent; /* thumb và track */
-		scrollbar-width: thin;
-	}
+.custom-slider {
+	@apply appearance-none h-1 w-full bg-neutral-500 rounded-full relative cursor-pointer;
+	background: linear-gradient(to right, #1db954 var(--progress), #404040 var(--progress));
+}
 
-	html:hover {
-		scrollbar-color: #535353 transparent;
-	}
+.custom-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	@apply w-2 h-2 rounded-full bg-white;
+	transition: all 0.3s cubic-bezier(0.47, 1.64, 0.41, 0.8);
+}
 
-	html:active {
-		scrollbar-color: #b3b3b3 transparent;
-	}
+.custom-slider::-moz-range-thumb {
+	@apply w-2 h-2 rounded-full bg-white;
+	border: none;
+	transition: all 0.3s cubic-bezier(0.47, 1.64, 0.41, 0.8);
+}
+
+/* Hover + focus effect */
+.custom-slider:hover::-webkit-slider-thumb,
+.custom-slider:focus::-webkit-slider-thumb {
+	box-shadow: 0px 0px 0px 8px rgb(0 0 0 / 16%);
+}
+
+.custom-slider:active::-webkit-slider-thumb {
+	@apply w-5 h-5;
+}
+
+.custom-slider:hover::-moz-range-thumb,
+.custom-slider:focus::-moz-range-thumb {
+	box-shadow: 0px 0px 0px 8px rgb(0 0 0 / 16%);
+}
+
+.custom-slider:active::-moz-range-thumb {
+	@apply w-5 h-5;
 }
