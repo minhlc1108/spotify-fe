@@ -1,4 +1,5 @@
 import { SimpleArtist } from "@types/Artist";
+import { SimpleTrack } from "./Track";
 
 export interface SimpleAlbum {
 	id: string;
@@ -21,7 +22,7 @@ export interface AlbumDetail {
 	title: string;
 	albumType: "ALBUM" | "SINGLE" | "EP";
 	artists: SimpleArtist[];
-	tracks: SimpleAlbum[];
+	tracks: SimpleTrack[];
 	coverImage: string | null;
 	releaseDate: string;
 }

@@ -14,26 +14,44 @@ export interface MusicCardProps {
 	context: "artist" | "track" | "album";
 }
 
-const MusicCard: React.FC<MusicCardProps> = ({ data, shape }) => {
-  return (
-    <div className='group min-w-[220px] p-4 rounded cursor-pointer hover:bg-[#ffffff26] relative'>
-      {/* Hình ảnh */}
-      <div className="relative "
-      >
-        <img 
-          className={`${shape?.toLowerCase() === "circle" ? "rounded-full" : "rounded"} w-full h-auto object-cover`} 
-          src={data.img} 
-          alt={data.title} 
-        >
-          
-        </img>
-        {/* Nút Play */}
-        <div className="absolute inset-0 flex items-end justify-end  bg-opacity-50 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded ">
-          <button className="bg-green-600 text-black p-1 rounded-full w-2/6 h-2/6 flex items-center justify-center shadow-xl ">
-            <PlayIcon className="w-3/5 h-3/5 "  />
-          </button>
-        </div>  
-      </div>
+const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
+	const [isPlaying, setIsPlaying] = useState(false);
+
+	// Hàm xử lý nhấn nút Play/Pause
+	const handlePlayPauseClick = (e: React.MouseEvent) => {
+		e.stopPropagation(); // Ngừng sự kiện lan truyền để không dẫn đến Link
+		setIsPlaying(!isPlaying);
+	};
+
+	return (
+		<div className="group w-[180px] h-[230px] p-3 rounded cursor-pointer hover:bg-[#ffffff26] relative">
+			{/* Hình ảnh */}
+			<div className="relative aspect-square w-full">
+				<Link to={`/${context}/${data.id}`}>
+					{data.img && data.img !== "" ? (
+						<img
+							className={`${context?.toLowerCase() === "artist" ? "rounded-full" : "rounded"} w-full h-full object-cover `}
+							src={data.img}
+							alt={data.title}
+						/>
+					) : (
+						<div
+							className={`${context?.toLowerCase() === "artist" ? "rounded-full" : "rounded"} w-full h-full flex items-center justify-center bg-evevatedHighlight`}
+						>
+							<DefaultIcon width={64} height={64} fill="white" />
+						</div>
+					)}
+				</Link>
+				{/* Nút Play */}
+				<div className="absolute inset-0 flex items-end justify-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
+					<button
+						className="bg-green-600 text-black w-12 h-12 rounded-full flex items-center justify-center"
+						onClick={handlePlayPauseClick} // Sử dụng hàm handlePlayPauseClick
+					>
+						{isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
+					</button>
+				</div>
+			</div>
 
       {/* Tiêu đề & Nghệ sĩ */}
       <p className='font-bold mt-2 mb-1'>{data.title}</p>
