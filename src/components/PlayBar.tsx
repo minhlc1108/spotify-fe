@@ -25,21 +25,6 @@ const PlayBar: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
 
-	
-	useEffect(() => {
-		const restorePlayState = async () => {
-		  try {
-			const response = await api.get("/playstate/"); // lấy trạng thái từ server
-			dispatch(setPlayState(response.data)); // set lại state trong Redux hoặc context
-		  } catch (error) {
-			console.error("Failed to fetch playState on app start:", error);
-		  }
-		};
-		restorePlayState();
-	  }, []);
-	  
-	
-
 	// 1) Play / Pause theo playState.isPlaying
 	useEffect(() => {
 		const audio = audioRef.current;

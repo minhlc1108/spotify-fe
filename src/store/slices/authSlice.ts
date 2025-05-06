@@ -1,7 +1,6 @@
 import { loginAPI, logoutAPI, registerAPI } from "@/api";
 import { AuthLogin, AuthRegister, User } from "@/types/Auth";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 
 interface AuthState {
 	user: User | null;

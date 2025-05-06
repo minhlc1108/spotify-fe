@@ -4,15 +4,18 @@ import Queue from "@/components/Queue";
 import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import PlayBar from "@/components/PlayBar";
-import { useAppDispatch } from "@/hooks/useRedux";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { fetchPlayState } from "@/store/slices/playStateSlice";
 
 const MainLayout: React.FC = () => {
 	const dispatch = useAppDispatch();
+	const user = useAppSelector((state) => state.auth.user);
 	useEffect(() => {
-		dispatch(fetchPlayState())
-			
-	}, [dispatch]);
+		if (user != null) {
+			console.log(user);
+			void dispatch(fetchPlayState());
+		}
+	}, [dispatch, user]);
 	return (
 		<div
 			className="h-screen w-full grid p-2 gap-2"
@@ -41,12 +44,12 @@ const MainLayout: React.FC = () => {
 			>
 				<Outlet />
 			</div>
-			<div
+			{/* <div
 				className="flex flex-col h-full rounded-lg  overflow-x-hidden bg-backgroundBase"
 				style={{ gridArea: "right-sidebar" }}
 			>
 				<Queue />
-			</div>
+			</div> */}
 			<div className="min-h-[70px]" style={{ gridArea: "nowplaying-bar" }}>
 				<PlayBar />
 			</div>
