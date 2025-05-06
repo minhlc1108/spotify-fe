@@ -1,20 +1,41 @@
 import { Album, AlbumDetail } from "@/types/Album";
 import { Artist, ArtistDetail } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
+import { PlayState } from "@/types/PlayState";
 import { Track, TrackDetail } from "@/types/Track";
 import { Playlist, PlaylistDetail } from "@/types/Playlist";
 import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
 	try {
-		const response = await api.post("/auth/login/", data);
+		const response = await api.post("/auth/login/", data); // api.post thay bằng axios.post
 		if (response.status === 200) {
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error logging in:" + (error as Error).message);
 	}
 	return null;
+};
+
+export const getPlayState = async (): Promise<PlayState> => {
+	try {
+		const response = await api.get("/playstate/");
+		return response.data as PlayState;
+	} catch (error) {
+		console.error("Failed to sync playState:", error);
+		throw new Error("Failed to sync playState");
+	}
+};
+
+export const patchPlayState = async (playState: PlayState): Promise<PlayState> => {
+	try {
+		const response = await api.patch("/playstate/", playState);
+		return response.data as PlayState;
+	} catch (error) {
+		console.error("Failed to sync playState:", error);
+		throw new Error("Failed to sync playState");
+	}
 };
 
 export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse | null> => {
@@ -24,7 +45,7 @@ export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error register in:" + (error as Error).message);
 	}
 	return null;
 };

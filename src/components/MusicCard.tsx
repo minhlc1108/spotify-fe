@@ -53,15 +53,11 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 				</div>
 			</div>
 
-			{/* Tiêu đề & Nghệ sĩ */}
-			<Link to={`/${context}/${data.id}`}>
-				<p className="font-bold mt-2 mb-1 truncate hover:underline" title={data.title}>
-					{data.title}
-				</p>
-			</Link>
-			<p className="text-slate-200 text-sm truncate">{data.artist}</p>
-		</div>
-	);
+      {/* Tiêu đề & Nghệ sĩ */}
+      <p className='font-bold mt-2 mb-1'>{data.title}</p>
+      <p className='text-slate-200 text-sm'>{data.artist}</p>
+    </div>
+  );
 };
 
 export default MusicCard;

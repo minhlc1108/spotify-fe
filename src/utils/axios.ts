@@ -3,6 +3,8 @@ import { RootState } from "@/store";
 import { Store } from "@reduxjs/toolkit";
 import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from "axios";
 import camelcaseKeys from "camelcase-keys";
+import { c } from "node_modules/vite/dist/node/moduleRunnerTransport.d-DJ_mE5sf";
+import { toast } from "react-toastify";
 import snakecaseKeys from "snakecase-keys";
 
 let isRefreshing = false;
@@ -95,6 +97,9 @@ api.interceptors.response.use(
 			}
 		}
 
+		const errorMessage =
+			(error.response?.data as { message?: string })?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+		toast.error(errorMessage);
 		return Promise.reject(error);
 	}
 );

@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { formatSecondsToMinutes } from "@/utils/format";
 import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
+import api from "@/utils/axios";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -23,6 +24,21 @@ const PlayBar: React.FC = () => {
 	const playState = useAppSelector((state) => state.playState);
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
+
+	
+	useEffect(() => {
+		const restorePlayState = async () => {
+		  try {
+			const response = await api.get("/playstate/"); // lấy trạng thái từ server
+			dispatch(setPlayState(response.data)); // set lại state trong Redux hoặc context
+		  } catch (error) {
+			console.error("Failed to fetch playState on app start:", error);
+		  }
+		};
+		restorePlayState();
+	  }, []);
+	  
+	
 
 	// 1) Play / Pause theo playState.isPlaying
 	useEffect(() => {
