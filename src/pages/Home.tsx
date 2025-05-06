@@ -6,9 +6,9 @@ import { Track } from "@/types/Track";
 import React, { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-	const [artists, setArtists] = useState<Artist[]>([]);
 	const [tracks, setTracks] = useState<Track[]>([]);
 	const [albums, setAlbums] = useState<Album[]>([]);
+	const [artists, setArtists] = useState<Artist[]>([]);
 	useEffect(() => {
 		fetchListArtist()
 			.then((data: Artist[]) => setArtists(data))

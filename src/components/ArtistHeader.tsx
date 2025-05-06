@@ -8,7 +8,7 @@ interface ArtistHeaderProps {
 
 const ArtistHeader: React.FC<ArtistHeaderProps> = ({ name, image }) => {
 	return (
-		<div className="relative w-full h-[260px] md:h-[250px] overflow-hidden">
+		<div className="relative w-full h-[300px] md:h-[300px] overflow-hidden">
 			<img src={image || "/default.png"} alt={name} className="object-cover w-full h-full opacity-60" />
 			<div className="absolute bottom-10 left-10 text-white">
 				<div className="flex items-center gap-2 mb-2">
