@@ -7,41 +7,33 @@ import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
 	try {
-		const response = await api.post("/auth/login/", data);
+		const response = await api.post("/auth/login/", data); // api.post thay bằng axios.post
 		if (response.status === 200) {
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error logging in:" + (error as Error).message);
 	}
 	return null;
 };
 
-export const getPlayState = async () => {
+export const getPlayState = async (): Promise<PlayState> => {
 	try {
-		const response = await api.get("/playstate/")
-		return response.data;
+		const response = await api.get("/playstate/");
+		return response.data as PlayState;
 	} catch (error) {
 		console.error("Failed to sync playState:", error);
+		throw new Error("Failed to sync playState");
 	}
 };
 
-export const patchPlayState = async (playState: PlayState) => {
+export const patchPlayState = async (playState: PlayState): Promise<PlayState> => {
 	try {
-		const response = await api.patch("/playstate/", {
-			current_track: playState.currentTrack?.id,
-			is_playing: playState.isPlaying,
-			is_looping: playState.isLooping,
-			is_shuffle: playState.isShuffle,
-			progress: playState.progress,
-			volume: playState.volume,
-			context_id: playState.contextId,
-			context_type: playState.contextType,
-			position_in_context: playState.positionInContext,
-		});
-		return response.data;
+		const response = await api.patch("/playstate/", playState);
+		return response.data as PlayState;
 	} catch (error) {
 		console.error("Failed to sync playState:", error);
+		throw new Error("Failed to sync playState");
 	}
 };
 

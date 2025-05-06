@@ -26,7 +26,7 @@ const Header: React.FC = () => {
 	};
 	return (
 		<div className="flex items-center justify-between h-16 p-2 -m-2">
-			<Link to={""} className="m-5">
+			<Link to={"/"} className="m-5">
 				<Spotify fontSize={32} />
 			</Link>
 
