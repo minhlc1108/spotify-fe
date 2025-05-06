@@ -14,6 +14,7 @@ const Artist: React.FC = () => {
 			.then((data) => {
 				if (data) {
 					setArtistDetail(data);
+					console.log(data)
 				}
 			})
 			.catch((error) => {

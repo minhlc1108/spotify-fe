@@ -6,6 +6,9 @@ import BarIcon from "@components/icons/icon-bar";
 import CloseIcon from "@components/icons/icon-close";
 import { useEffect, useRef, useState } from "react";
 import LibraryItem from "@components/LibraryItem";
+import { useNavigate } from "react-router-dom";
+import { fetchUserPlaylistsAPI } from "@/api";
+import { Playlist } from "@/types/Playlist";
 
 const Library: React.FC = () => {
 	const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -14,6 +17,8 @@ const Library: React.FC = () => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const contentRef = useRef<HTMLInputElement | null>(null);
+	const [playList, setPlayList] = useState<Playlist[]>();
+	const navigate = useNavigate();
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent): void {
 			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -35,6 +40,17 @@ const Library: React.FC = () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [keyword]);
+
+	useEffect(() => {
+		const fetchPlayList = async () => {
+			const data = await fetchUserPlaylistsAPI();
+			if (data) {
+				setPlayList(data);
+			}
+		};
+
+		void fetchPlayList();
+	}, []);
 	return (
 		<div className="sm:flex hidden w-[280px] min-h-0  flex-col">
 			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>
@@ -101,18 +117,20 @@ const Library: React.FC = () => {
 					</div>
 					<div>
 						<ul>
-							<li>
-								<LibraryItem
-									title="Playlist của tôi #1"
-									type="playlist"
-									url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Playlist  • Minh.lcm."
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing
-								/>
-							</li>
+							{playList?.map((pl, index) => (
+								<li key={index} onClick={() => navigate(`/playlist/${pl.id}`, { replace: true })}>
+									<LibraryItem
+										title="Playlist của tôi #1"
+										type="playlist"
+										url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
+										_id="73DlGzZda4hdpTsGCiAir8"
+										desc="Playlist  • Minh.lcm."
+										isPlaying={false}
+										isPlayingBar={false}
+										isShowing
+									/>
+								</li>
+							))}
 							<li>
 								<LibraryItem
 									title="TheFatRat"
