@@ -31,20 +31,16 @@ const Table: React.FC<TableProps> = ({ title, tracks }) => {
 						<MoreIcon />
 					</button>
 				</div>
-				<div className="">
-					<button className="flex flex-row items-center">
-						<p className="text-sm px-2"> List </p>
-						<List />
-					</button>
-				</div>
+				{album && (
+					<div className="">
+						<button className="flex flex-row items-center">
+							<p className="text-sm px-2"> List </p>
+							<List />
+						</button>
+					</div>
+				)}
 			</div>
 			{/* Header */}
-			{/* <div className="grid grid-cols-12 px-4 py-2 text-[#a7a7a7] border-b border-[#333]">
-				<p className="col-span-1 text-center">#</p>
-				<p className="col-span-6 truncate">Title</p>
-				<p className="col-span-3 text-center">View</p>
-				<p className="col-span-2 text-center">Time</p>
-			</div> */}
 
 			{/* Danh sách bài hát */}
 

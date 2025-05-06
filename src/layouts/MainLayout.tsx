@@ -11,8 +11,7 @@ const MainLayout: React.FC = () => {
 	const dispatch = useAppDispatch();
 	useEffect(() => {
 		dispatch(fetchPlayState())
-			.then((res) => {})
-			.catch((err) => {});
+			
 	}, [dispatch]);
 	return (
 		<div

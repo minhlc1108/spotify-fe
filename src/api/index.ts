@@ -1,6 +1,7 @@
 import { Album, AlbumDetail } from "@/types/Album";
 import { Artist, ArtistDetail } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
+import { PlayState } from "@/types/PlayState";
 import { Track, TrackDetail } from "@/types/Track";
 import api from "@/utils/axios";
 
@@ -14,6 +15,34 @@ export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | nul
 		console.error("Error logging in:", error);
 	}
 	return null;
+};
+
+export const getPlayState = async () => {
+	try {
+		const response = await api.get("/playstate/")
+		return response.data;
+	} catch (error) {
+		console.error("Failed to sync playState:", error);
+	}
+};
+
+export const patchPlayState = async (playState: PlayState) => {
+	try {
+		const response = await api.patch("/playstate/", {
+			current_track: playState.currentTrack?.id,
+			is_playing: playState.isPlaying,
+			is_looping: playState.isLooping,
+			is_shuffle: playState.isShuffle,
+			progress: playState.progress,
+			volume: playState.volume,
+			context_id: playState.contextId,
+			context_type: playState.contextType,
+			position_in_context: playState.positionInContext,
+		});
+		return response.data;
+	} catch (error) {
+		console.error("Failed to sync playState:", error);
+	}
 };
 
 export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse | null> => {
