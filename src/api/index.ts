@@ -109,6 +109,19 @@ export const fetchTrackDetailAPI = async (id: string): Promise<TrackDetail | nul
 	} catch (error) {
 		console.error("Error fetching track detail:", error);
 	}
+		return null;
+	};
+	
+// Tạo Playlist
+export const createPlaylist = async (): Promise<Playlist | null> => {
+	try {
+		const response = await api.post("/api/playlists/");
+		if (response.status === 201 || response.status === 200) {
+			return response.data as Playlist;
+		}
+	} catch (error) {
+		console.error("Error creating playlist:", error);
+	}
 	return null;
 };
 
@@ -119,7 +132,19 @@ export const fetchAlbumDetailAPI = async (id: string): Promise<AlbumDetail | nul
 			return response.data as AlbumDetail;
 		}
 	} catch (error) {
-		console.error("Error fetching album detail:", error);
+		console.error("Error fetching album detail:", error);}
+		return null;
+	};
+	
+// Lấy playlist theo ID
+export const getPlaylist = async (playlistId: number): Promise<PlaylistDetail | null> => {
+	try {
+		const response = await api.get(`/api/playlists/${playlistId}/`);
+		if (response.status === 200) {
+			return response.data as PlaylistDetail;
+		}
+	} catch (error) {
+		console.error("Error fetching playlist:", error);
 	}
 	return null;
 };
@@ -292,3 +317,28 @@ export const removePlaylistFromLibraryAPI = async (playlistId: string): Promise<
     return false;
   }
 };
+// Lấy tất cả playlists của user ID = 1 (hoặc truyền user ID vào cho đúng hơn)
+export const getPlaylistsByUserId = async (userId: number = 1): Promise<Playlist[]> => {
+	try {
+		const response = await api.get(`/api/playlists/user/${userId}/`);
+		if (Array.isArray(response.data)) {
+			return response.data as Playlist[];
+		}
+	} catch (error) {
+		console.error("Error fetching playlists by user:", error);
+	}
+	return [];
+};
+
+// Xoá playlist
+export const deletePlaylist = async (playlistId: number): Promise<boolean> => {
+	try {
+		const response = await api.delete(`/api/playlists/${playlistId}/`);
+		return response.status === 204 || response.status === 200;
+	} catch (error) {
+		console.error("Error deleting playlist:", error);
+		return false;
+	}
+};
+
+
