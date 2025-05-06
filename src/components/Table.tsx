@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import PlusCirle from "./icons/icon-plusCirle";
 import MoreIcon from "./icons/icon-more";
 import PlayIcon from "./icons/icon-play";
-import List from "./icons/icon-list";
 import DownloadIcon from "./icons/icon-download";
 import { SimpleTrack } from "@/types/Track";
 import { formatSecondsToMinutes } from "@/utils/format";
@@ -31,14 +30,14 @@ const Table: React.FC<TableProps> = ({ title, tracks }) => {
 						<MoreIcon />
 					</button>
 				</div>
-				{album && (
+				{/* {album && (
 					<div className="">
 						<button className="flex flex-row items-center">
 							<p className="text-sm px-2"> List </p>
 							<List />
 						</button>
 					</div>
-				)}
+				)} */}
 			</div>
 			{/* Header */}
 

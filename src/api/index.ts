@@ -44,7 +44,7 @@ export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error register in:" + (error as Error).message);
 	}
 	return null;
 };
