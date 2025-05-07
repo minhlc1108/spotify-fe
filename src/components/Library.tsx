@@ -6,6 +6,8 @@ import BarIcon from "@components/icons/icon-bar";
 import CloseIcon from "@components/icons/icon-close";
 import { useEffect, useRef, useState } from "react";
 import LibraryItem from "@components/LibraryItem";
+import { LibraryType } from "@/types/Library";
+import { fetchLibrary } from "@/api";
 
 const Library: React.FC = () => {
 	const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -14,6 +16,8 @@ const Library: React.FC = () => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const contentRef = useRef<HTMLInputElement | null>(null);
+		const [library, setLibrary] = useState<LibraryType | null>(null);
+	
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent): void {
 			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -35,6 +39,19 @@ const Library: React.FC = () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [keyword]);
+	useEffect(() => {
+		fetchLibrary()
+		.then((data: LibraryType | null) => {
+			if (data) {
+				setLibrary(data);
+			} else {
+				console.log("Library data is null");
+			}
+		})
+		.catch((error) => {
+			console.log(error);
+		});
+	},[])
 	return (
 		<div className="sm:flex hidden w-[280px] min-h-0  flex-col">
 			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>
@@ -106,7 +123,7 @@ const Library: React.FC = () => {
 									title="Playlist của tôi #1"
 									type="playlist"
 									url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Playlist  • Minh.lcm."
 									isPlaying={false}
 									isPlayingBar={false}
@@ -118,7 +135,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -130,7 +147,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -142,7 +159,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -154,7 +171,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -166,7 +183,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -178,7 +195,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -190,7 +207,7 @@ const Library: React.FC = () => {
 									title="TheFatRat"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying={false}
 									isPlayingBar={false}
@@ -202,7 +219,7 @@ const Library: React.FC = () => {
 									title="Sơn Tùng M-TP"
 									type="artist"
 									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
-									_id="73DlGzZda4hdpTsGCiAir8"
+									idTrack="73DlGzZda4hdpTsGCiAir8"
 									desc="Artist"
 									isPlaying
 									isPlayingBar

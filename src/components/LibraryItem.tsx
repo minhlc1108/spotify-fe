@@ -5,7 +5,7 @@ import VolumnIcon from "@components/icons/icon-volumn";
 import PauseIcon from "./icons/icon-pause";
 
 interface LibraryItemProps {
-	_id: string;
+	idTrack: string;
 	title: string;
 	type: string;
 	url: string;
@@ -20,7 +20,7 @@ const LibraryItem: React.FC<LibraryItemProps> = (props) => {
 	const [isPlaying, setIsPlaying] = useState<boolean>(props.isPlaying);
 	const [isPlayingBar, setIsPlayingBar] = useState<boolean>(props.isPlayingBar);
 	return (
-		<Link to={`/${props.type}/${props._id}`} onClick={() => setIsShowing(true)}>
+		<Link to={`/${props.type}/${props.idTrack}`} onClick={() => setIsShowing(true)}>
 			<div
 				className={`group grid p-2 gap-3 ${isShowing ? "bg-evevatedHighlight hover:bg-[#ffffff36]" : "bg-transparent hover:bg-evevatedBase"}  rounded-md`}
 				style={{

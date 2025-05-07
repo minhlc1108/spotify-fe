@@ -1,6 +1,7 @@
 import { Album } from "@/types/Album";
 import { Artist } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
+import { LibraryType } from "@/types/Library";
 import { Track } from "@/types/Track";
 import api from "@/utils/axios";
 
@@ -75,5 +76,14 @@ export const fetchListTrack = async (): Promise<Track[]> => {
 	} catch (error) {
 		console.error("Error fetching artists:", error);
 		return [];
+	}
+};
+export const fetchLibrary = async (): Promise<LibraryType | null> => {
+	try {
+		const response = await api.get("/library");
+		return response.data as LibraryType;
+	} catch (error) {
+		console.error("Error fetching library:", error);
+		return null;
 	}
 };
