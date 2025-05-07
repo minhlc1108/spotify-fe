@@ -1,5 +1,5 @@
-import { loginAPI, logoutAPI } from "@/api";
-import { AuthLogin, User } from "@/types/Auth";
+import { loginAPI, logoutAPI, registerAPI } from "@/api";
+import { AuthLogin, AuthRegister, User } from "@/types/Auth";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
@@ -25,13 +25,13 @@ export const login = createAsyncThunk("auth/login", async (credentials: AuthLogi
 	}
 });
 
+export const register = createAsyncThunk("auth/register", async (data: AuthRegister, { rejectWithValue }) => {
+	const res = await registerAPI(data);
+	return res as unknown as User; // hoặc toàn bộ res nếu cần access/refresh
+});
+
 export const logout = createAsyncThunk("auth/logout", async (_, { rejectWithValue }) => {
-	try {
-		await logoutAPI();
-	} catch (err) {
-		const error = err as { response?: { data?: { detail?: string } } };
-		return rejectWithValue(error.response?.data?.detail || "Logout failed");
-	}
+	return await logoutAPI();
 });
 
 const authSlice = createSlice({
@@ -49,6 +49,18 @@ const authSlice = createSlice({
 				state.user = action.payload;
 			})
 			.addCase(login.rejected, (state, action) => {
+				state.status = "failed";
+				state.error = action.payload as string;
+			})
+			.addCase(register.pending, (state) => {
+				state.status = "loading";
+				state.error = null;
+			})
+			.addCase(register.fulfilled, (state, action: PayloadAction<User>) => {
+				state.status = "succeeded";
+				state.user = action.payload;
+			})
+			.addCase(register.rejected, (state, action) => {
 				state.status = "failed";
 				state.error = action.payload as string;
 			})

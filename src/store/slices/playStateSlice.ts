@@ -1,3 +1,4 @@
+import { getPlayState, patchPlayState } from "@/api";
 import { PlayState } from "@/types/PlayState";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -50,23 +51,14 @@ const mockPlayState: PlayState = {
 export const updatePlayState = createAsyncThunk(
 	"playState/update",
 	async (playState: PlayState, { rejectWithValue }) => {
-		return new Promise<PlayState>((resolve) => {
-			setTimeout(() => {
-				resolve(playState);
-			}, 1500);
-		});
+		return await patchPlayState(playState)
 	}
 );
 
 export const fetchPlayState = createAsyncThunk("play/fetchPlayState", async (): Promise<PlayState> => {
 	// const res = await fetch("/api/playstate");
 	// return await res.json(); // trả về playState từ server
-	await new Promise((resolve) => {
-		setTimeout(() => {
-			resolve(true);
-		}, 1000); // giả lập thời gian chờ 1 giây
-	}); // giả lập thời gian chờ 1 giây
-	return mockPlayState; // trả về playState giả lập
+	return await getPlayState();
 });
 
 const playStateSlice = createSlice({

@@ -17,12 +17,18 @@ export interface MusicCardProps {
 const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 	const [isPlaying, setIsPlaying] = useState(false);
 
+	// Hàm xử lý nhấn nút Play/Pause
+	const handlePlayPauseClick = (e: React.MouseEvent) => {
+		e.stopPropagation(); // Ngừng sự kiện lan truyền để không dẫn đến Link
+		setIsPlaying(!isPlaying);
+	};
+
 	return (
 		<div className="group w-[180px] h-[230px] p-3 rounded cursor-pointer hover:bg-[#ffffff26] relative">
 			{/* Hình ảnh */}
 			<div className="relative aspect-square w-full">
 				<Link to={`/${context}/${data.id}`}>
-					{data.img && data.img != "" ? (
+					{data.img && data.img !== "" ? (
 						<img
 							className={`${context?.toLowerCase() === "artist" ? "rounded-full" : "rounded"} w-full h-full object-cover `}
 							src={data.img}
@@ -40,10 +46,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 				<div className="absolute inset-0 flex items-end justify-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded">
 					<button
 						className="bg-green-600 text-black w-12 h-12 rounded-full flex items-center justify-center"
-						onClick={(e) => {
-							e.stopPropagation();
-							setIsPlaying(!isPlaying);
-						}}
+						onClick={handlePlayPauseClick} // Sử dụng hàm handlePlayPauseClick
 					>
 						{isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
 					</button>
@@ -51,12 +54,14 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 			</div>
 
 			{/* Tiêu đề & Nghệ sĩ */}
-			<Link to={`/${context}/${data.id}`}>
-				<p className="font-bold mt-2 mb-1 truncate hover:underline" title={data.title}>
+			<Link to={`/${context}/${data.id}`} className="hover:underline">
+				<p className="font-bold mt-2 mb-1 truncate" title={data.title}>
 					{data.title}
 				</p>
 			</Link>
-			<p className="text-slate-200 text-sm truncate">{data.artist}</p>
+			<p className="text-slate-200 text-sm truncate" title={data.artist}>
+				{data.artist}
+			</p>
 		</div>
 	);
 };

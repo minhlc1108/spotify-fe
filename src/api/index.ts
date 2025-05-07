@@ -1,20 +1,42 @@
-import { Album } from "@/types/Album";
-import { Artist } from "@/types/Artist";
+import { Album, AlbumDetail } from "@/types/Album";
+import { Artist, ArtistDetail } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
+import { PlayState } from "@/types/PlayState";
+import { SearchResult } from "@/types/Search";
+import { Track, TrackDetail } from "@/types/Track";
 import { LibraryType } from "@/types/Library";
-import { Track } from "@/types/Track";
 import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
 	try {
-		const response = await api.post("/auth/login/", data);
+		const response = await api.post("/auth/login/", data); // api.post thay bằng axios.post
 		if (response.status === 200) {
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error logging in:" + (error as Error).message);
 	}
 	return null;
+};
+
+export const getPlayState = async (): Promise<PlayState> => {
+	try {
+		const response = await api.get("/playstate/");
+		return response.data as PlayState;
+	} catch (error) {
+		console.error("Failed to sync playState:", error);
+		throw new Error("Failed to sync playState");
+	}
+};
+
+export const patchPlayState = async (playState: PlayState): Promise<PlayState> => {
+	try {
+		const response = await api.patch("/playstate/", playState);
+		return response.data as PlayState;
+	} catch (error) {
+		console.error("Failed to sync playState:", error);
+		throw new Error("Failed to sync playState");
+	}
 };
 
 export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse | null> => {
@@ -24,7 +46,7 @@ export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error register in:" + (error as Error).message);
 	}
 	return null;
 };
@@ -77,6 +99,58 @@ export const fetchListTrack = async (): Promise<Track[]> => {
 		console.error("Error fetching artists:", error);
 		return [];
 	}
+};
+
+export const fetchTrackDetailAPI = async (id: string): Promise<TrackDetail | null> => {
+	try {
+		const response = await api.get(`/tracks/${id}`);
+		if (response.status === 200) {
+			return response.data as TrackDetail;
+		}
+	} catch (error) {
+		console.error("Error fetching track detail:", error);
+	}
+	return null;
+};
+
+export const fetchAlbumDetailAPI = async (id: string): Promise<AlbumDetail | null> => {
+	try {
+		const response = await api.get(`/albums/${id}`);
+		if (response.status === 200) {
+			return response.data as AlbumDetail;
+		}
+	} catch (error) {
+		console.error("Error fetching album detail:", error);
+	}
+	return null;
+};
+
+export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | null> => {
+	try {
+		const response = await api.get(`/artists/${id}`);
+		if (response.status === 200) {
+			return response.data as ArtistDetail;
+		}
+	} catch (error) {
+		console.error("Error fetching artist detail:", error);
+	}
+	return null;
+};
+
+export const searchAPI = async (keyword: string): Promise<SearchResult> => {
+	try {
+		const response = await api.get(`/search/?q=${keyword}`);
+		if (response.status === 200) {
+			return response.data as SearchResult;
+		}
+	} catch (error) {
+		console.error("Error searching:", error);
+	}
+	return {
+		albums: [],
+		artists: [],
+		tracks: [],
+	};
 };
 export const fetchLibrary = async (): Promise<LibraryType | null> => {
 	try {

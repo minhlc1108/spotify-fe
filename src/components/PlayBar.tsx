@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { formatSecondsToMinutes } from "@/utils/format";
 import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
+import api from "@/utils/axios";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
