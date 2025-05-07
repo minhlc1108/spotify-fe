@@ -60,7 +60,7 @@ const Home: React.FC = () => {
 				/>
 
 				<Section
-					title="Poplar album and singles"
+					title="Popular album and singles"
 					url="/albums"
 					data={albums.map((data) => ({
 						data: {

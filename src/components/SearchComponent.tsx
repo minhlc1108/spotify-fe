@@ -16,7 +16,7 @@ export default function SearchComponent(): JSX.Element {
 
 	// Khi chuyển về "/", reset input
 	useEffect(() => {
-		if (location.pathname === "/") {
+		if (!location.pathname.includes("/search")) {
 			setInputValue("");
 		}
 	}, [location.pathname]);
@@ -27,16 +27,14 @@ export default function SearchComponent(): JSX.Element {
 			return;
 		}
 
-		const isSearchPage = location.pathname.startsWith("/search") || location.pathname === "/";
-
-		if (!isSearchPage) return;
-
 		const trimmed = debouncedSearchTerm.trim();
 
 		if (trimmed !== "") {
 			void navigate(`/search/${encodeURIComponent(trimmed)}`);
 		} else {
-			void navigate("/");
+			if (location.pathname.includes("/search")) {
+				void navigate("/");
+			}
 		}
 	}, [debouncedSearchTerm, navigate, location.pathname]);
 
@@ -50,7 +48,9 @@ export default function SearchComponent(): JSX.Element {
 				ref={inputRef}
 				type="text"
 				value={inputValue}
-				onChange={(e) => setInputValue(e.target.value)}
+				onChange={(e) => {
+					setInputValue(e.target.value);
+				}}
 				placeholder="What do you want to play?"
 				className="w-full bg-transparent text-white placeholder-[#b3b3b3] focus:outline-none px-2"
 			/>
