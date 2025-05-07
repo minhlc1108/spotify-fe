@@ -163,13 +163,13 @@ export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | n
 
 export const fetchUserPlaylistsAPI = async (): Promise<Playlist[]> => {
   try {
-    const response = await api.get("/playlists/user");
+    const response = await api.get("/playlists/");
     if (Array.isArray(response.data)) {
       return response.data as Playlist[];
     }
     return [];
   } catch (error) {
-    console.error("Error fetching user playlists:", error);
+    console.error("Error fetching playlists:", error);
     return [];
   }
 };
