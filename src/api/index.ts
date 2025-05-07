@@ -163,7 +163,7 @@ export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | n
 
 export const fetchUserPlaylistsAPI = async (): Promise<Playlist[]> => {
   try {
-    const response = await api.get("/playlists/user");
+    const response = await api.get("/playlist/");
     if (Array.isArray(response.data)) {
       return response.data as Playlist[];
     }
