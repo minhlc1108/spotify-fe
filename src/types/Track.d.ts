@@ -8,6 +8,10 @@ export interface SimpleTrack {
 	duration: number;
 	artists: SimpleArtist[];
 	coverImage: string | null;
+	audioFile: string;
+	videoFile: string | null;
+	album: string;
+	genres: string[];
 	playCount: number;
 }
 

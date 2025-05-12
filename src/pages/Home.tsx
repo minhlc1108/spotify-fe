@@ -41,7 +41,7 @@ const Home: React.FC = () => {
 							title: data.title,
 							artist: data.artists.map((artist) => artist.name).join(", "),
 						},
-						context: "track",
+						context: null,
 					}))}
 				/>
 

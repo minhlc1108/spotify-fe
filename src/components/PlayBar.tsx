@@ -21,7 +21,7 @@ import { PlayState } from "@/types/PlayState";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const audioRef = React.useRef<HTMLAudioElement>(null);
+	const audioRef = useRef<HTMLAudioElement>(null);
 	const playState = useAppSelector((state) => state.playState);
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
@@ -29,7 +29,7 @@ const PlayBar: React.FC = () => {
 	// console.log ('this is playState in playbar', playState)
 
 	// handle khi change thì update
-	const handleToggleShuffle = () => {
+	const handleToggleShuffle = (): void => {
 		const updated = { ...playState, isShuffle: !playState.isShuffle };
 
 		updatePlayState(updated); // API call
@@ -38,15 +38,15 @@ const PlayBar: React.FC = () => {
 
 	// handle khi tab bị tắt hoặc mất focus
 	useEffect(() => {
-		const handleBeforeUnload = () => {
+		const handleBeforeUnload = (): void => {
 			updatePlayState({ ...playState, isPlaying: false }); // hoặc gửi trạng thái cuối cùng
 		};
 
 		window.addEventListener("beforeunload", handleBeforeUnload);
-		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+		return (): void => window.removeEventListener("beforeunload", handleBeforeUnload);
 	}, [playState]);
 
-	const handleToggleLoop = () => {
+	const handleToggleLoop = (): void => {
 		const updated = { ...playState, isLooping: !playState.isLooping };
 		updatePlayState(updated);
 		dispatch(setPlayState(updated));
@@ -57,7 +57,7 @@ const PlayBar: React.FC = () => {
 		if (!playState.currentTrack) return;
 
 		// Hàm cập nhật trạng thái và gửi API
-		const update = async () => {
+		const update = async (): Promise<void> => {
 			// Cập nhật lại Redux playState
 			const newPlayState: PlayState = {
 				currentTrack: playState.currentTrack,
@@ -83,7 +83,7 @@ const PlayBar: React.FC = () => {
 		};
 
 		// Gọi hàm update ngay khi có thay đổi
-		update();
+		void update();
 
 		// Giám sát những thay đổi quan trọng trong playState
 	}, [playState.isPlaying, playState.currentTrack?.id, playState.isShuffle, playState.isLooping]);
@@ -137,10 +137,10 @@ const PlayBar: React.FC = () => {
 		if (!audio) return;
 
 		if (playState.isPlaying && playState.currentTrack?.audioFile) {
-			audio.load(); // reset lại audio để tránh bug
+			// audio.load(); // reset lại audio để tránh bug
 			audio.play().catch(() => {});
 		}
-	}, [playState.currentTrack?.id]);
+	}, [playState.currentTrack?.audioFile, playState.isPlaying]);
 
 	return (
 		<div className="h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
@@ -148,7 +148,7 @@ const PlayBar: React.FC = () => {
 			<div className="flex items-center gap-4">
 				{playState.currentTrack?.coverImage && <img className="w-12" src={playState.currentTrack.coverImage} alt="" />}
 				<div className="px-3">
-					<Link to={"/album/" + playState.currentTrack?.album?.id} className="text-s font-bold hover:underline">
+					<Link to={"/album/" + playState.currentTrack?.album} className="text-s font-bold hover:underline">
 						{playState.currentTrack?.title}
 					</Link>
 					<ul>
@@ -156,7 +156,7 @@ const PlayBar: React.FC = () => {
 							<Link key={index} to={"/artist/" + artist.id}>
 								<li className="text-xs hover:underline inline">
 									{artist.name}
-									{index < playState.currentTrack.artists.length - 1 ? ", " : ""}
+									{playState.currentTrack && index < playState.currentTrack.artists.length - 1 ? ", " : ""}
 								</li>
 							</Link>
 						))}
