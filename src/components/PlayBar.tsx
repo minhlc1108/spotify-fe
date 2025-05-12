@@ -1,4 +1,3 @@
-// PlayBar.tsx
 import React, { useEffect, useRef, useState } from "react";
 import PlayIcon from "./icons/icon-play";
 import SpeakIcon from "./icons/icon-speaker";
@@ -22,33 +21,33 @@ import { PlayState } from "@/types/PlayState";
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const audioRef = useRef<HTMLAudioElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
 	const playState = useAppSelector((state) => state.playState);
+	const [showVideo, setShowVideo] = useState(false);
+	const [showFullScreen, setShowFullScreen] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
-
-	// console.log ('this is playState in playbar', playState)
 
 	// handle khi change thì update
 	const handleToggleShuffle = (): void => {
 		const updated = { ...playState, isShuffle: !playState.isShuffle };
 
-		updatePlayState(updated); // API call
 		dispatch(setPlayState(updated));
 	};
 
 	// handle khi tab bị tắt hoặc mất focus
 	useEffect(() => {
 		const handleBeforeUnload = (): void => {
-			updatePlayState({ ...playState, isPlaying: false }); // hoặc gửi trạng thái cuối cùng
+			void dispatch(updatePlayState({ ...playState, isPlaying: false }));
 		};
 
 		window.addEventListener("beforeunload", handleBeforeUnload);
 		return (): void => window.removeEventListener("beforeunload", handleBeforeUnload);
-	}, [playState]);
+	}, [playState, dispatch]);
 
-	const handleToggleLoop = (): void => {
+	const handleToggleLoop = async (): Promise<void> => {
 		const updated = { ...playState, isLooping: !playState.isLooping };
-		updatePlayState(updated);
+		await dispatch(updatePlayState(updated));
 		dispatch(setPlayState(updated));
 		// API call
 	};
@@ -75,8 +74,10 @@ const PlayBar: React.FC = () => {
 			// Cập nhật vào Redux Store
 			dispatch(setPlayState(newPlayState));
 			const audio = audioRef.current;
+			const video = videoRef.current;
 			if (!audio) return;
 			audio.loop = !!newPlayState.isLooping;
+			if (video) video.loop = !!newPlayState.isLooping;
 
 			// Gọi API để đồng bộ với Backend
 			await dispatch(updatePlayState(newPlayState));
@@ -91,18 +92,22 @@ const PlayBar: React.FC = () => {
 	// Xử lý play / pause
 	useEffect(() => {
 		const audio = audioRef.current;
+		const video = videoRef.current;
 		if (!audio) return;
 
 		if (playState.isPlaying) {
 			audio.play().catch(() => {});
+			video?.play().catch(() => {});
 		} else {
 			audio.pause();
+			video?.pause();
 		}
 	}, [playState.isPlaying]);
 
 	// Cập nhật progress tự động từ audio → Redux
 	useEffect(() => {
 		const audio = audioRef.current;
+		const video = videoRef.current;
 		if (!audio) return;
 		const onTimeUpdate = (): void => {
 			if (!isDragging) {
@@ -111,41 +116,49 @@ const PlayBar: React.FC = () => {
 			}
 		};
 		audio.addEventListener("timeupdate", onTimeUpdate);
+		video?.addEventListener("timeupdate", onTimeUpdate);
 		return (): void => {
 			audio.removeEventListener("timeupdate", onTimeUpdate);
+			video?.removeEventListener("timeupdate", onTimeUpdate);
 		};
 	}, [dispatch, playState, isDragging]);
 
 	// Khi Redux progress thay đổi → cập nhật audio.currentTime
 	useEffect(() => {
 		const audio = audioRef.current;
+		const video = videoRef.current;
 		if (!audio || isDragging) return;
-		if (Math.abs(audio.currentTime - playState.progress) > 0.5) {
+		if (Math.abs(audio.currentTime - playState.progress) > 0.4) {
 			audio.currentTime = playState.progress;
+			if (video) video.currentTime = playState.progress;
 		}
 	}, [playState.progress, isDragging]);
 
 	// Sync volume từ Redux → audio
 	useEffect(() => {
 		const audio = audioRef.current;
+		const video = videoRef.current;
 		if (!audio) return;
 		audio.volume = playState.volume / 100;
+		if (video) video.volume = playState.volume / 100;
 	}, [playState.volume]);
 
 	useEffect(() => {
 		const audio = audioRef.current;
+		const video = videoRef.current;
 		if (!audio) return;
 
 		if (playState.isPlaying && playState.currentTrack?.audioFile) {
 			// audio.load(); // reset lại audio để tránh bug
 			audio.play().catch(() => {});
+			video?.play().catch(() => {});
 		}
 	}, [playState.currentTrack?.audioFile, playState.isPlaying]);
 
 	return (
-		<div className="h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
+		<div className=" h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
 			{/* Left - Thông tin bài hát */}
-			<div className="flex items-center gap-4">
+			<div className="flex items-center gap-4 z-10">
 				{playState.currentTrack?.coverImage && <img className="w-12" src={playState.currentTrack.coverImage} alt="" />}
 				<div className="px-3">
 					<Link to={"/album/" + playState.currentTrack?.album} className="text-s font-bold hover:underline">
@@ -162,13 +175,13 @@ const PlayBar: React.FC = () => {
 						))}
 					</ul>
 				</div>
-				<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white">
+				<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
 					<PlusCirle fill="#ccc" />
 				</div>
 			</div>
 
 			{/* Center - Các nút điều khiển & thanh tiến trình */}
-			<div className="flex flex-col items-center">
+			<div className="flex flex-col items-center z-10">
 				<div className="flex items-center gap-6">
 					<button
 						onClick={handleToggleShuffle}
@@ -211,7 +224,9 @@ const PlayBar: React.FC = () => {
 						}}
 						onChangeEnd={(val) => {
 							const audio = audioRef.current;
+							const video = videoRef.current;
 							if (audio) audio.currentTime = val;
+							if (video) video.currentTime = val;
 							dispatch(setPlayState({ ...playState, progress: val }));
 							setIsDragging(false);
 						}}
@@ -231,8 +246,8 @@ const PlayBar: React.FC = () => {
 					<SqueueIcon />
 				</button>
 
-				<div className="flex items-center gap-2 max-w-[100px]">
-					<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
+				<div className="flex items-center gap-2 max-w-[100px] z-10">
+					<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80 ">
 						{playState.volume === 0 ? (
 							<VolumnOffIcon fill="#ccc" onClick={() => dispatch(setPlayState({ ...playState, volume: 70 }))} />
 						) : (
@@ -245,14 +260,28 @@ const PlayBar: React.FC = () => {
 						onChange={(val) => dispatch(setPlayState({ ...playState, volume: val }))}
 					/>
 				</div>
-
-				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
-					<OpenMiniPlayerIcon />
-				</button>
-
-				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
-					<FullScreenIcon />
-				</button>
+				{playState.currentTrack?.videoFile && (
+					<>
+						<button
+							className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80 z-10"
+							onClick={() => setShowVideo(!showVideo)}
+						>
+							<OpenMiniPlayerIcon stroke={showVideo ? "#3be477" : "#ccc"} />
+						</button>
+						<button
+							className={`${showVideo ? "block" : "hidden"} w-5 h-5 cursor-pointer flex items-center justify-center opacity-80 z-10`}
+							onClick={() => setShowFullScreen(!showFullScreen)}
+						>
+							<FullScreenIcon stroke={showFullScreen ? "#3be477" : "#ccc"} />
+						</button>
+						<video
+							ref={videoRef}
+							src={playState.currentTrack?.videoFile}
+							className={`${showVideo ? "absolute" : "hidden"} ${showFullScreen ? "pb-20 pt-10 top-0 left-0 h-full w-full" : " w-[500px] h-[500px] right-[16px] "}   bottom-[75px] rounded-lg bg-black`}
+							muted
+						/>
+					</>
+				)}
 			</div>
 		</div>
 	);
