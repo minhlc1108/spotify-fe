@@ -1,5 +1,6 @@
 // PlayBar.tsx
-import React, { useEffect, useRef, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import PlayIcon from "./icons/icon-play";
 import SpeakIcon from "./icons/icon-speaker";
 import PauseIcon from "./icons/icon-pause";
@@ -27,6 +28,27 @@ const PlayBar: React.FC = () => {
 	const [localProgress, setLocalProgress] = useState(playState.progress);
 
 	// console.log ('this is playState in playbar', playState)
+	const handleNextTrack = () => {
+		if (!playState.currentPlaylist) return;
+
+		let nextTrack;
+		const currentTrackId = playState.currentTrack?.id;
+		const playlist = playState.currentPlaylist;
+
+		if (playState.isShuffle) {
+			// Random track khác với track hiện tại
+			const otherTracks = playlist.filter((track) => track.id !== currentTrackId);
+			const randomIndex = Math.floor(Math.random() * otherTracks.length);
+			nextTrack = otherTracks[randomIndex];
+		} else {
+			// Phát tuần tự
+			const currentIndex = playlist.findIndex((t) => t.id === currentTrackId);
+			const nextIndex = (currentIndex + 1) % playlist.length;
+			nextTrack = playlist[nextIndex];
+		}
+
+		dispatch({ type: "SET_CURRENT_TRACK", payload: nextTrack });
+	};
 
 	// handle khi change thì update
 	const handleToggleShuffle = () => {
@@ -71,7 +93,7 @@ const PlayBar: React.FC = () => {
 				positionInContext: playState.positionInContext, // nếu cần
 				lastUpdated: new Date().toISOString(),
 			};
-
+			
 			// Cập nhật vào Redux Store
 			dispatch(setPlayState(newPlayState));
 			const audio = audioRef.current;
@@ -123,6 +145,7 @@ const PlayBar: React.FC = () => {
 		if (Math.abs(audio.currentTime - playState.progress) > 0.5) {
 			audio.currentTime = playState.progress;
 		}
+
 	}, [playState.progress, isDragging]);
 
 	// Sync volume từ Redux → audio

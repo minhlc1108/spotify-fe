@@ -5,7 +5,8 @@ import PauseIcon from "@components/icons/icon-pause";
 import DefaultIcon from "./icons/icon-default";
 import { fetchAlbumDetailAPI, fetchArtistDetails, fetchTrackDetailAPI } from "@/api";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { setPlayState,updatePlayState } from "@/store/slices/playStateSlice";
+import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
+import { TrackDetail } from "@/types/TrackDetail"; // Import TrackDetail type
 import { PlayState } from "@/types/PlayState";
 
 
@@ -16,7 +17,7 @@ export interface MusicCardProps {
 		title: string;
 		artist: string;
 	};
-	context: "artist" | "track" | "album";
+	context: "artist" | "track" | "album" ;
 }
 
 const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
@@ -33,9 +34,9 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 			if (context === "track") {
 				track = await fetchTrackDetailAPI(data.id);
 			} else if (context === "album") {
-				console.log('data in album', data)
+				// console.log('data in album', data)
 				const albumDetail = await fetchAlbumDetailAPI(data.id);
-				console.log('ddetail albumalbum', albumDetail)
+				// console.log('ddetail albumalbum', albumDetail)
 
 				if (albumDetail?.tracks?.length) {
 					track = albumDetail.tracks[0];
@@ -53,7 +54,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 			console.log ('new tracktrack', track);
 	
 			const newPlayState: PlayState = {
-				currentTrack: track,
+				currentTrack: track as TrackDetail,
 				isPlaying: true,
 				progress: 0,
 				contextId: data.id,
