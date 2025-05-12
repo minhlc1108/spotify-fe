@@ -3,6 +3,11 @@ import PlayIcon from "@components/icons/icon-play";
 import { useState } from "react";
 import PauseIcon from "@components/icons/icon-pause";
 import DefaultIcon from "./icons/icon-default";
+import { fetchAlbumDetailAPI, fetchArtistDetails, fetchTrackDetailAPI } from "@/api";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { setPlayState,updatePlayState } from "@/store/slices/playStateSlice";
+import { PlayState } from "@/types/PlayState";
+
 
 export interface MusicCardProps {
 	data: {
@@ -16,12 +21,60 @@ export interface MusicCardProps {
 
 const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 	const [isPlaying, setIsPlaying] = useState(false);
-
+	// console.log ('this is context page ', context);
+	const dispatch = useAppDispatch();
 	// Hàm xử lý nhấn nút Play/Pause
-	const handlePlayPauseClick = (e: React.MouseEvent) => {
-		e.stopPropagation(); // Ngừng sự kiện lan truyền để không dẫn đến Link
-		setIsPlaying(!isPlaying);
+	const handlePlayPauseClick = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		console.log ('this is context music card ', context);
+		try {
+			let track;
+			// Xử lý tùy theo context
+			if (context === "track") {
+				track = await fetchTrackDetailAPI(data.id);
+			} else if (context === "album") {
+				console.log('data in album', data)
+				const albumDetail = await fetchAlbumDetailAPI(data.id);
+				console.log('ddetail albumalbum', albumDetail)
+
+				if (albumDetail?.tracks?.length) {
+					track = albumDetail.tracks[0];
+					console.log('track context album', track)
+				}
+			} else if (context === "artist") {
+				const artistTopTracks = await fetchArtistDetails(data.id);
+				track = artistTopTracks?.tracks[0]; // Lấy bài đầu tiên của artist
+			}
+	
+			if (!track) {
+				console.error("Không tìm thấy track phù hợp");
+				return;
+			}
+			console.log ('new tracktrack', track);
+	
+			const newPlayState: PlayState = {
+				currentTrack: track,
+				isPlaying: true,
+				progress: 0,
+				contextId: data.id,
+				contextType: context,
+				positionInContext: 0,
+				lastUpdated: new Date().toISOString(),
+			};
+			console.log ('new playstate', newPlayState);
+
+			dispatch(setPlayState(newPlayState));
+
+			await dispatch(updatePlayState(newPlayState));
+			// console.log ('new playstate', newPlayState);
+			// console.log('update',updatePlayState(newPlayState));
+			
+		} catch (error) {
+			console.error("Lỗi khi phát nhạc:", error);
+		}
 	};
+	
+	  
 
 	return (
 		<div className="group w-[180px] h-[230px] p-3 rounded cursor-pointer hover:bg-[#ffffff26] relative">
@@ -61,3 +114,5 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 };
 
 export default MusicCard;
+
+

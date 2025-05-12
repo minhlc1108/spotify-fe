@@ -33,7 +33,7 @@ const Home: React.FC = () => {
 			<div className="px-10 ">
 				<Section
 					title="Trending Songs"
-					url="/tracks"
+					url="/track"
 					data={tracks.map((data) => ({
 						data: {
 							id: data.id,
@@ -47,7 +47,7 @@ const Home: React.FC = () => {
 
 				<Section
 					title="Popular Artists"
-					url="/artists"
+					url="/artist"
 					data={artists.map((artist) => ({
 						data: {
 							id: artist.id,
@@ -61,7 +61,7 @@ const Home: React.FC = () => {
 
 				<Section
 					title="Poplar album and singles"
-					url="/albums"
+					url="/album"
 					data={albums.map((data) => ({
 						data: {
 							id: data.id,

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// PlayBar.tsx
+import React, { useEffect, useRef, useState } from "react";
 import PlayIcon from "./icons/icon-play";
 import SpeakIcon from "./icons/icon-speaker";
 import PauseIcon from "./icons/icon-pause";
@@ -11,12 +12,12 @@ import SqueueIcon from "./icons/icon-queue";
 import FullScreenIcon from "./icons/icon-fullScreen";
 import { OpenMiniPlayerIcon } from "./icons/icon-miniPlayer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { setPlayState } from "@/store/slices/playStateSlice";
+import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { Link } from "react-router-dom";
 import { formatSecondsToMinutes } from "@/utils/format";
 import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
-import api from "@/utils/axios";
+import { PlayState } from "@/types/PlayState";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -25,30 +26,83 @@ const PlayBar: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
 
-	
-	useEffect(() => {
-		const restorePlayState = async () => {
-		  try {
-			const response = await api.get("/playstate/"); // lấy trạng thái từ server
-			dispatch(setPlayState(response.data)); // set lại state trong Redux hoặc context
-		  } catch (error) {
-			console.error("Failed to fetch playState on app start:", error);
-		  }
-		};
-		restorePlayState();
-	  }, []);
-	  
-	
+	// console.log ('this is playState in playbar', playState)
 
-	// 1) Play / Pause theo playState.isPlaying
+	// handle khi change thì update
+	const handleToggleShuffle = () => {
+		const updated = { ...playState, isShuffle: !playState.isShuffle };
+
+		updatePlayState(updated); // API call
+		dispatch(setPlayState(updated));
+	};
+
+	// handle khi tab bị tắt hoặc mất focus
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			updatePlayState({ ...playState, isPlaying: false }); // hoặc gửi trạng thái cuối cùng
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+	}, [playState]);
+
+	const handleToggleLoop = () => {
+		const updated = { ...playState, isLooping: !playState.isLooping };
+		updatePlayState(updated);
+		dispatch(setPlayState(updated));
+		// API call
+	};
+
+	useEffect(() => {
+		if (!playState.currentTrack) return;
+
+		// Hàm cập nhật trạng thái và gửi API
+		const update = async () => {
+			// Cập nhật lại Redux playState
+			const newPlayState: PlayState = {
+				currentTrack: playState.currentTrack,
+				isPlaying: playState.isPlaying,
+				volume: playState.volume,
+				progress: playState.progress,
+				isShuffle: playState.isShuffle,
+				isLooping: playState.isLooping,
+				contextId: playState.contextId, // nếu cần, điền contextId của bạn
+				contextType: playState.contextType, // điền contextType nếu cần
+				positionInContext: playState.positionInContext, // nếu cần
+				lastUpdated: new Date().toISOString(),
+			};
+
+			// Cập nhật vào Redux Store
+			dispatch(setPlayState(newPlayState));
+			const audio = audioRef.current;
+			if (!audio) return;
+			audio.loop = !!newPlayState.isLooping;
+
+			
+
+			// Gọi API để đồng bộ với Backend
+			await dispatch(updatePlayState(newPlayState));
+		};
+
+		// Gọi hàm update ngay khi có thay đổi
+		update();
+
+		// Giám sát những thay đổi quan trọng trong playState
+	}, [playState.isPlaying, playState.currentTrack?.id, playState.isShuffle, playState.isLooping]);
+
+	// Xử lý play / pause
 	useEffect(() => {
 		const audio = audioRef.current;
 		if (!audio) return;
-		if (playState.isPlaying) audio.play().catch(() => {});
-		else audio.pause();
+
+		if (playState.isPlaying) {
+			audio.play().catch(() => {});
+		} else {
+			audio.pause();
+		}
 	}, [playState.isPlaying]);
 
-	// 2) Auto-update progress từ audio → Redux, nhưng chỉ khi đang drag
+	// Cập nhật progress tự động từ audio → Redux
 	useEffect(() => {
 		const audio = audioRef.current;
 		if (!audio) return;
@@ -64,7 +118,7 @@ const PlayBar: React.FC = () => {
 		};
 	}, [dispatch, playState, isDragging]);
 
-	// 3) Sync Redux progress → audio.currentTime (khi không drag)
+	// Khi Redux progress thay đổi → cập nhật audio.currentTime
 	useEffect(() => {
 		const audio = audioRef.current;
 		if (!audio || isDragging) return;
@@ -73,28 +127,38 @@ const PlayBar: React.FC = () => {
 		}
 	}, [playState.progress, isDragging]);
 
-	// 4) Sync Redux volume → audio.volume
+	// Sync volume từ Redux → audio
 	useEffect(() => {
 		const audio = audioRef.current;
 		if (!audio) return;
 		audio.volume = playState.volume / 100;
 	}, [playState.volume]);
 
+	useEffect(() => {
+		const audio = audioRef.current;
+		if (!audio) return;
+
+		if (playState.isPlaying && playState.currentTrack?.audioFile) {
+			audio.load(); // reset lại audio để tránh bug
+			audio.play().catch(() => {});
+		}
+	}, [playState.currentTrack?.id]);
+
 	return (
 		<div className="h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
-			{/* First */}
-			<div className="flex items-center gap-4 ">
+			{/* Left - Thông tin bài hát */}
+			<div className="flex items-center gap-4">
 				{playState.currentTrack?.coverImage && <img className="w-12" src={playState.currentTrack.coverImage} alt="" />}
 				<div className="px-3">
-					<Link to={"/album/" + playState?.currentTrack?.album.id} className="text-s font-bold hover:underline">
+					<Link to={"/album/" + playState.currentTrack?.album?.id} className="text-s font-bold hover:underline">
 						{playState.currentTrack?.title}
 					</Link>
 					<ul>
-						{playState?.currentTrack?.artists.map((artist, index) => (
+						{playState.currentTrack?.artists.map((artist, index) => (
 							<Link key={index} to={"/artist/" + artist.id}>
-								<li className="text-xs hover:underline">
+								<li className="text-xs hover:underline inline">
 									{artist.name}
-									{index < (playState.currentTrack?.artists.length || 0) - 1 ? ", " : ""}
+									{index < playState.currentTrack.artists.length - 1 ? ", " : ""}
 								</li>
 							</Link>
 						))}
@@ -104,38 +168,40 @@ const PlayBar: React.FC = () => {
 					<PlusCirle fill="#ccc" />
 				</div>
 			</div>
-			{/* Center */}
+
+			{/* Center - Các nút điều khiển & thanh tiến trình */}
 			<div className="flex flex-col items-center">
 				<div className="flex items-center gap-6">
 					<button
-						className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full opacity-80"
-						onClick={() => dispatch(setPlayState({ ...playState, isShuffle: !playState.isShuffle }))}
+						onClick={handleToggleShuffle}
+						className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
 					>
 						<ShuffleIcon fill={!playState.isShuffle ? "#ccc" : "#3be477"} />
 					</button>
-					<button className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center text-black rounded-full opacity-80">
+
+					<button className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80">
 						<NextIcon fill="#ccc" />
 					</button>
-					{/* <SkipPrevIcon className="w-5 h-5 cursor-pointer" /> */}
+
 					<button
 						className="w-8 h-8 flex items-center justify-center bg-white text-black rounded-full hover:scale-115 transition-all duration-200 ease-in-out"
 						onClick={() => dispatch(setPlayState({ ...playState, isPlaying: !playState.isPlaying }))}
 					>
 						{playState.isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
 					</button>
-					<button className="w-4 h-4 cursor-pointer flex items-center justify-center text-black rounded-full">
+
+					<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
 						<NextIcon fill="#ccc" />
 					</button>
 
 					<button
-						className="w-4 h-4 cursor-pointer flex items-center justify-center text-black rounded-full"
-						onClick={() => {
-							dispatch(setPlayState({ ...playState, isLooping: !playState.isLooping }));
-						}}
+						className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={handleToggleLoop}
 					>
 						<RepeatIcon fill={!playState.isLooping ? "#ccc" : "#3be477"} />
 					</button>
 				</div>
+
 				<div className="flex items-center gap-5 min-w-[600px]">
 					<p>{formatSecondsToMinutes(isDragging ? localProgress : playState.progress)}</p>
 					<TailwindSlider
@@ -146,30 +212,29 @@ const PlayBar: React.FC = () => {
 							setLocalProgress(val);
 						}}
 						onChangeEnd={(val) => {
-							// khi người dùng thả chuột
 							const audio = audioRef.current;
 							if (audio) audio.currentTime = val;
 							dispatch(setPlayState({ ...playState, progress: val }));
 							setIsDragging(false);
 						}}
 					/>
-
+					<p>{formatSecondsToMinutes(playState.currentTrack?.duration)}</p>
 					<audio ref={audioRef} src={playState.currentTrack?.audioFile}></audio>
-					<p>{formatSecondsToMinutes(playState?.currentTrack?.duration)}</p>
 				</div>
 			</div>
 
-			{/* // Right */}
+			{/* Right - Volume & tiện ích */}
 			<div className="flex items-center gap-4">
-				<button className="w-4 h-4 cursor-pointer flex items-center justify-center text-black rounded-full opacity-80">
+				<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
 					<MicIcon />
 				</button>
 
-				<button className="w-5 h-5 cursor-pointer flex items-center justify-center rounded-full opacity-80">
+				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
 					<SqueueIcon />
 				</button>
+
 				<div className="flex items-center gap-2 max-w-[100px]">
-					<button className="w-5 h-5 cursor-pointer flex items-center justify-center rounded-full opacity-80">
+					<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
 						{playState.volume === 0 ? (
 							<VolumnOffIcon fill="#ccc" onClick={() => dispatch(setPlayState({ ...playState, volume: 70 }))} />
 						) : (
@@ -182,16 +247,12 @@ const PlayBar: React.FC = () => {
 						onChange={(val) => dispatch(setPlayState({ ...playState, volume: val }))}
 					/>
 				</div>
-				{/* <BarIcon className="w-5 h-5 cursor-pointer" />
-				<div className="w-20 h-1 bg-gray-600 rounded-full relative">
-					<div className="w-10 h-full bg-white rounded-full"></div>
-				</div> */}
 
-				<button className="w-5 h-5 cursor-pointer flex items-center justify-center rounded-full opacity-80">
+				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
 					<OpenMiniPlayerIcon />
 				</button>
 
-				<button className="w-5 h-5 cursor-pointer flex items-center justify-center rounded-full opacity-80">
+				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
 					<FullScreenIcon />
 				</button>
 			</div>

@@ -26,16 +26,34 @@ export const getPlayState = async (): Promise<PlayState> => {
 		throw new Error("Failed to sync playState");
 	}
 };
-
 export const patchPlayState = async (playState: PlayState): Promise<PlayState> => {
 	try {
-		const response = await api.patch("/playstate/", playState);
+		const { currentTrack, ...rest } = playState;
+
+		const payload = {
+			current_track: currentTrack ? currentTrack.id : null,
+			is_playing: rest.isPlaying,
+			progress: rest.progress,
+			is_shuffle: rest.isShuffle ?? false,
+			is_looping: rest.isLooping ?? false,
+			volume: rest.volume ?? 70,
+			context_id: rest.contextId,
+			context_type: rest.contextType,
+			position_in_context: rest.positionInContext,
+			last_updated: rest.lastUpdated,
+		};
+
+		console.log("payload sent to BE", payload);
+		const response = await api.patch("/playstate/", payload);
 		return response.data as PlayState;
 	} catch (error) {
 		console.error("Failed to sync playState:", error);
 		throw new Error("Failed to sync playState");
 	}
 };
+
+
+
 
 export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse | null> => {
 	try {
@@ -60,9 +78,11 @@ export const logoutAPI = async (): Promise<void> => {
 	}
 };
 
+
+
 export const fetchListArtist = async (): Promise<Artist[]> => {
 	try {
-		const response = await api.get("/artists");
+		const response = await api.get("/artist");
 		if (Array.isArray(response.data)) {
 			return response.data as Artist[]; // Chắc chắn đây là mảng Artist
 		}
@@ -73,9 +93,23 @@ export const fetchListArtist = async (): Promise<Artist[]> => {
 	}
 };
 
+export const fetchArtistDetails = async (id: string): Promise<ArtistDetail | null> => {
+	try {
+		const response = await api.get(`/artist/${id}`);
+		if(response.status === 200 )
+			{
+				return response.data as ArtistDetail;
+			}
+	}catch(error){
+		console.error("Error fetching artist details:", error);
+	}
+	return null;
+}
+
+
 export const fetchListAlbum = async (): Promise<Album[]> => {
 	try {
-		const response = await api.get("/albums");
+		const response = await api.get("/album");
 		if (Array.isArray(response.data)) {
 			return response.data as Album[];
 		}
@@ -88,7 +122,7 @@ export const fetchListAlbum = async (): Promise<Album[]> => {
 
 export const fetchListTrack = async (): Promise<Track[]> => {
 	try {
-		const response = await api.get("/tracks");
+		const response = await api.get("/track");
 		if (Array.isArray(response.data)) {
 			return response.data as Track[];
 		}
@@ -101,7 +135,7 @@ export const fetchListTrack = async (): Promise<Track[]> => {
 
 export const fetchTrackDetailAPI = async (id: string): Promise<TrackDetail | null> => {
 	try {
-		const response = await api.get(`/tracks/${id}`);
+		const response = await api.get(`/track/${id}`);
 		if (response.status === 200) {
 			return response.data as TrackDetail;
 		}
@@ -113,7 +147,7 @@ export const fetchTrackDetailAPI = async (id: string): Promise<TrackDetail | nul
 
 export const fetchAlbumDetailAPI = async (id: string): Promise<AlbumDetail | null> => {
 	try {
-		const response = await api.get(`/albums/${id}`);
+		const response = await api.get(`/album/${id}`);
 		if (response.status === 200) {
 			return response.data as AlbumDetail;
 		}
@@ -125,7 +159,7 @@ export const fetchAlbumDetailAPI = async (id: string): Promise<AlbumDetail | nul
 
 export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | null> => {
 	try {
-		const response = await api.get(`/artists/${id}`);
+		const response = await api.get(`/artist/${id}`);
 		if (response.status === 200) {
 			return response.data as ArtistDetail;
 		}

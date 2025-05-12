@@ -15,7 +15,7 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({ title, tracks }) => {
 	return (
-		<div className="mt-10">
+		<div className="">
 			<div className="flex flex-row items-center justify-between m-5 ">
 				<div className=" flex-row flex items-center gap-4">
 					<button className="bg-green-600 text-black p-1 rounded-full w-10 h-10  flex items-center justify-center shadow-xl ">
@@ -31,7 +31,7 @@ const Table: React.FC<TableProps> = ({ title, tracks }) => {
 						<MoreIcon />
 					</button>
 				</div>
-				{album && (
+				{tracks && (
 					<div className="">
 						<button className="flex flex-row items-center">
 							<p className="text-sm px-2"> List </p>

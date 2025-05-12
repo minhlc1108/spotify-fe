@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import PreviousIcon from "@components/icons/icon-previous";
 import SlideNextIcon from "@components/icons/icon-slideNext";
 
+
+
 interface SectionProps {
 	data: MusicCardProps[];
 	title: string;
@@ -60,7 +62,7 @@ const Section: React.FC<SectionProps> = ({ data, title, url }) => {
 					ref={scrollRef}
 				>
 					<div className="grid grid-flow-col px-7">
-						{data && data.map((card, index) => <MusicCard key={index} {...card} />)}
+						{data && data.map((card, index) => <MusicCard key={index}  {...card} />)}
 					</div>
 				</div>
 				<div className="absolute top-0 bottom-0 left-0 right-0 flex justify-between pointer-events-none">
