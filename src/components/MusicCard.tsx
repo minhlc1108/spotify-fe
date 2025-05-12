@@ -7,7 +7,6 @@ import { fetchAlbumDetailAPI, fetchArtistDetails, fetchTrackDetailAPI } from "@/
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { PlayState } from "@/types/PlayState";
-import { SimpleTrack } from "@/types/Track";
 import { toast } from "react-toastify";
 
 export interface MusicCardProps {
@@ -96,7 +95,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 		<div className="group w-[180px] h-[230px] p-3 rounded cursor-pointer hover:bg-[#ffffff26] relative">
 			{/* Hình ảnh */}
 			<div className="relative aspect-square w-full">
-				<Link to={`/${context}/${data.id}`}>
+				<Link to={`/${context != null ? context : "track"}/${data.id}`}>
 					{data.img && data.img !== "" ? (
 						<img
 							className={`${context?.toLowerCase() === "artist" ? "rounded-full" : "rounded"} w-full h-full object-cover `}
@@ -123,7 +122,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 			</div>
 
 			{/* Tiêu đề & Nghệ sĩ */}
-			<Link to={`/${context}/${data.id}`} className="hover:underline">
+			<Link to={`/${context !== null ? context : "track"}/${data.id}`} className="hover:underline">
 				<p className="font-bold mt-2 mb-1 truncate" title={data.title}>
 					{data.title}
 				</p>

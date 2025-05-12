@@ -10,7 +10,6 @@ export default function SearchComponent(): JSX.Element {
 	const clearInput = (): void => setInputValue("");
 	const focusInput = (): void => inputRef.current?.focus();
 	const debouncedSearchTerm = useDebounce(inputValue, 500);
-	const isFirstRender = useRef(true);
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -18,25 +17,24 @@ export default function SearchComponent(): JSX.Element {
 	useEffect(() => {
 		if (!location.pathname.includes("/search")) {
 			setInputValue("");
-		}
+		} else setInputValue(decodeURIComponent(location.pathname.split("/search/")[1] || ""));
 	}, [location.pathname]);
 
 	useEffect(() => {
-		if (isFirstRender.current) {
-			isFirstRender.current = false;
-			return;
-		}
-
 		const trimmed = debouncedSearchTerm.trim();
 
+		// Nếu có từ khóa => điều hướng sang search
 		if (trimmed !== "") {
 			void navigate(`/search/${encodeURIComponent(trimmed)}`);
-		} else {
-			if (location.pathname.includes("/search")) {
+		}
+		// Nếu không có từ khóa => chỉ về "/" nếu input thật sự trống VÀ url cũng không chứa keyword
+		else {
+			if (!inputValue && location.pathname.includes("/search")) {
 				void navigate("/");
 			}
 		}
-	}, [debouncedSearchTerm, navigate, location.pathname]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [debouncedSearchTerm]);
 
 	return (
 		<div className="group  items-center h-12 md:flex lg:w-[40rem] bg-[#242424] hover:bg-[#2a2a2a] rounded-full px-4 focus-within:outline focus-within:outline-2 focus-within:outline-white transition-all duration-300">
