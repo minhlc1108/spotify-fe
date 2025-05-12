@@ -3,6 +3,7 @@ import { RootState } from "@/store";
 import { Store } from "@reduxjs/toolkit";
 import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from "axios";
 import camelcaseKeys from "camelcase-keys";
+import { toast } from "react-toastify";
 import snakecaseKeys from "snakecase-keys";
 
 let isRefreshing = false;
@@ -81,6 +82,10 @@ api.interceptors.response.use(
 			isRefreshing = true;
 			try {
 				// Gọi endpoint refreshToken (cookie sẽ được gửi tự động)
+				const state = store.getState();
+				if (!state.auth.user) {
+					return Promise.reject(error); // Đã logout rồi, không nên gọi refreshToken nữa
+				}
 				await api.post("/auth/refreshToken/");
 				processQueue(null);
 				return api(originalRequest);
@@ -94,6 +99,9 @@ api.interceptors.response.use(
 			}
 		}
 
+		const errorMessage =
+			(error.response?.data as { message?: string })?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+		toast.error(errorMessage);
 		return Promise.reject(error);
 	}
 );

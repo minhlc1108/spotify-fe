@@ -2,6 +2,7 @@ import { Album, AlbumDetail } from "@/types/Album";
 import { Artist, ArtistDetail } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
 import { PlayState } from "@/types/PlayState";
+import { SearchResult } from "@/types/Search";
 import { Track, TrackDetail } from "@/types/Track";
 import api from "@/utils/axios";
 
@@ -62,7 +63,7 @@ export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse
 			return response.data as AuthLoginResponse;
 		}
 	} catch (error) {
-		console.error("Error logging in:", error);
+		throw new Error("Error register in:" + (error as Error).message);
 	}
 	return null;
 };
@@ -167,4 +168,20 @@ export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | n
 		console.error("Error fetching artist detail:", error);
 	}
 	return null;
+};
+
+export const searchAPI = async (keyword: string): Promise<SearchResult> => {
+	try {
+		const response = await api.get(`/search/?q=${keyword}`);
+		if (response.status === 200) {
+			return response.data as SearchResult;
+		}
+	} catch (error) {
+		console.error("Error searching:", error);
+	}
+	return {
+		albums: [],
+		artists: [],
+		tracks: [],
+	};
 };

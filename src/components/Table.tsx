@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import PlusCirle from "./icons/icon-plusCirle";
 import MoreIcon from "./icons/icon-more";
 import PlayIcon from "./icons/icon-play";
-import List from "./icons/icon-list";
 import DownloadIcon from "./icons/icon-download";
 import { SimpleTrack } from "@/types/Track";
 import { formatSecondsToMinutes } from "@/utils/format";
@@ -15,30 +14,16 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({ title, tracks }) => {
 	return (
-		<div className="">
+		<div className="px-6">
 			<div className="flex flex-row items-center justify-between m-5 ">
-				<div className=" flex-row flex items-center gap-4">
-					<button className="bg-green-600 text-black p-1 rounded-full w-10 h-10  flex items-center justify-center shadow-xl ">
-						<PlayIcon className="w-3/5 h-3/5 " />
-					</button>
-					<button className="w-4 h-4">
-						<PlusCirle fill="#fff" />
-					</button>
-					<button className="w-4 h-4">
-						<DownloadIcon fill="#fff" />
-					</button>
-					<button>
-						<MoreIcon />
-					</button>
-				</div>
-				{tracks && (
+				{/* {album && (
 					<div className="">
 						<button className="flex flex-row items-center">
 							<p className="text-sm px-2"> List </p>
 							<List />
 						</button>
 					</div>
-				)}
+				)} */}
 			</div>
 			{/* Header */}
 

@@ -6,9 +6,9 @@ import { Track } from "@/types/Track";
 import React, { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-	const [artists, setArtists] = useState<Artist[]>([]);
 	const [tracks, setTracks] = useState<Track[]>([]);
 	const [albums, setAlbums] = useState<Album[]>([]);
+	const [artists, setArtists] = useState<Artist[]>([]);
 	useEffect(() => {
 		fetchListArtist()
 			.then((data: Artist[]) => setArtists(data))
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
 			<div className="px-10 ">
 				<Section
 					title="Trending Songs"
-					url="/track"
+					url="/tracks"
 					data={tracks.map((data) => ({
 						data: {
 							id: data.id,
@@ -47,7 +47,7 @@ const Home: React.FC = () => {
 
 				<Section
 					title="Popular Artists"
-					url="/artist"
+					url="/artists"
 					data={artists.map((artist) => ({
 						data: {
 							id: artist.id,
@@ -60,8 +60,8 @@ const Home: React.FC = () => {
 				/>
 
 				<Section
-					title="Poplar album and singles"
-					url="/album"
+					title="Popular album and singles"
+					url="/albums"
 					data={albums.map((data) => ({
 						data: {
 							id: data.id,

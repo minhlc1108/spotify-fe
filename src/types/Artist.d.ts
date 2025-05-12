@@ -23,6 +23,7 @@ export interface ArtistDetail {
 	name: string;
 	gender: "M" | "F";
 	image: string | null;
+	imagePage: string | null;
 	bio: string;
 	createdAt: string;
 }

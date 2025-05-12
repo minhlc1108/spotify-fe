@@ -78,8 +78,6 @@ const PlayBar: React.FC = () => {
 			if (!audio) return;
 			audio.loop = !!newPlayState.isLooping;
 
-			
-
 			// Gọi API để đồng bộ với Backend
 			await dispatch(updatePlayState(newPlayState));
 		};

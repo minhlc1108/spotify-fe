@@ -1,9 +1,6 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import Spotify from "@components/icons/icon-spotify";
-import Google from "@components/icons/icon-google";
-import Facebook from "@components/icons/icon-facebook";
-import Apple from "@components/icons/icon-apple";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 
@@ -15,7 +12,7 @@ interface Errors {
 const Login: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.auth.user);
-	const { status, error } = useAppSelector((state) => state.auth);
+	const { status } = useAppSelector((state) => state.auth);
 	const [identifier, setIdentifier] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [errors, setErrors] = useState<Errors>({});
@@ -30,11 +27,11 @@ const Login: React.FC = () => {
 		const newErrors: Errors = {};
 
 		if (!identifier.trim()) {
-			newErrors.identifier = "Email or username is required";
+			newErrors.identifier = "Vui lòng nhập Email hoặc username ";
 		}
 
 		if (!password.trim()) {
-			newErrors.password = "Password is required";
+			newErrors.password = "Vui lòng nhập mật khẩu";
 		}
 
 		setErrors(newErrors);
@@ -50,12 +47,7 @@ const Login: React.FC = () => {
 			password,
 		};
 
-		const resultAction = await dispatch(login(data));
-
-		if (login.rejected.match(resultAction)) {
-			// Lỗi login, bạn có thể lấy message từ error state
-			console.log("Login failed:", error);
-		}
+		await dispatch(login(data));
 	};
 
 	return (
@@ -69,7 +61,6 @@ const Login: React.FC = () => {
 				{/* Title */}
 				<h1 className="text-2xl font-bold text-center text-white mb-6">Đăng nhập vào Spotify</h1>
 				{/* Form */}
-				{status === "failed" && <p className="text-sm text-red-500 mt-1">{error}</p>}
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Identifier */}
 					<div>
@@ -89,6 +80,7 @@ const Login: React.FC = () => {
 						<input
 							type="password"
 							value={password}
+							autoComplete="current-password"
 							onChange={(e) => setPassword(e.target.value)}
 							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
 						/>
