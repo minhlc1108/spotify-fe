@@ -32,16 +32,16 @@ export const patchPlayState = async (playState: PlayState): Promise<PlayState> =
 		const { currentTrack, ...rest } = playState;
 
 		const payload = {
-			current_track: currentTrack ? currentTrack.id : null,
-			is_playing: rest.isPlaying,
+			currentTrack: currentTrack ? currentTrack.id : null,
+			isPlaying: rest.isPlaying,
 			progress: rest.progress,
-			is_shuffle: rest.isShuffle ?? false,
-			is_looping: rest.isLooping ?? false,
+			isShuffle: rest.isShuffle ?? false,
+			isLooping: rest.isLooping ?? false,
 			volume: rest.volume ?? 70,
-			context_id: rest.contextId,
-			context_type: rest.contextType,
-			position_in_context: rest.positionInContext,
-			last_updated: rest.lastUpdated,
+			contextId: rest.contextId,
+			contextType: rest.contextType,
+			positionInContext: rest.positionInContext,
+			lastUpdated: rest.lastUpdated,
 		};
 
 		console.log("payload sent to BE", payload);
@@ -52,9 +52,6 @@ export const patchPlayState = async (playState: PlayState): Promise<PlayState> =
 		throw new Error("Failed to sync playState");
 	}
 };
-
-
-
 
 export const registerAPI = async (data: AuthRegister): Promise<AuthLoginResponse | null> => {
 	try {
@@ -79,8 +76,6 @@ export const logoutAPI = async (): Promise<void> => {
 	}
 };
 
-
-
 export const fetchListArtist = async (): Promise<Artist[]> => {
 	try {
 		const response = await api.get("/artist");
@@ -97,16 +92,14 @@ export const fetchListArtist = async (): Promise<Artist[]> => {
 export const fetchArtistDetails = async (id: string): Promise<ArtistDetail | null> => {
 	try {
 		const response = await api.get(`/artist/${id}`);
-		if(response.status === 200 )
-			{
-				return response.data as ArtistDetail;
-			}
-	}catch(error){
+		if (response.status === 200) {
+			return response.data as ArtistDetail;
+		}
+	} catch (error) {
 		console.error("Error fetching artist details:", error);
 	}
 	return null;
-}
-
+};
 
 export const fetchListAlbum = async (): Promise<Album[]> => {
 	try {
