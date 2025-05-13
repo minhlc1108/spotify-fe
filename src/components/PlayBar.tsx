@@ -155,6 +155,14 @@ const PlayBar: React.FC = () => {
 		}
 	}, [playState.currentTrack?.audioFile, playState.isPlaying]);
 
+	useEffect(() => {
+		const audio = audioRef.current;
+		const video = videoRef.current;
+		if (audio && video) {
+			video.currentTime = audio.currentTime;
+		}
+	}, [showVideo]);
+
 	return (
 		<div className=" h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
 			{/* Left - Thông tin bài hát */}
@@ -275,7 +283,7 @@ const PlayBar: React.FC = () => {
 						<video
 							ref={videoRef}
 							src={playState.currentTrack?.videoFile}
-							className={`${showVideo ? "absolute" : "hidden"} ${showFullScreen ? "pb-20 pt-10 top-0 left-0 h-full w-full" : " w-[500px] h-[500px] right-[16px] "}   bottom-[75px] rounded-lg bg-black`}
+							className={`${showVideo ? "absolute" : "absolute opacity-0 pointer-events-none "} ${showFullScreen ? "pb-20 pt-10 top-0 left-0 h-full w-full" : " w-[500px] h-[500px] right-[16px] "}   bottom-[75px] rounded-lg bg-black`}
 							muted
 						/>
 					</>

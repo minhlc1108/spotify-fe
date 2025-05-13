@@ -32,7 +32,7 @@ const Home: React.FC = () => {
 		<section className="py-1">
 			<div className="px-10 ">
 				<Section
-					title="Trending Songs"
+					title="Songs"
 					url="/tracks"
 					data={tracks.map((data) => ({
 						data: {
@@ -46,7 +46,7 @@ const Home: React.FC = () => {
 				/>
 
 				<Section
-					title="Popular Artists"
+					title="Artists"
 					url="/artists"
 					data={artists.map((artist) => ({
 						data: {
@@ -60,7 +60,7 @@ const Home: React.FC = () => {
 				/>
 
 				<Section
-					title="Popular album and singles"
+					title="Album and singles"
 					url="/albums"
 					data={albums.map((data) => ({
 						data: {
