@@ -31,7 +31,7 @@ const LibraryItem: React.FC<LibraryItemProps> = (props) => {
 				<div
 					className={`col-start-1 col-end-1 relative  ${props.type === "playlist" ? "rounded-sm" : "rounded-full"} overflow-hidden`}
 				>
-					<img className={`h-full w-full object-cover object-center`} src={props.url} alt="" />
+					<img height="48" width="48" className={`h-full w-full object-cover object-center`} src={props.url} alt="" />
 					<button
 						className="group-hover:flex absolute hidden items-center justify-center top-0 left-0 right-0 bottom-0 bg-black/50"
 						onClick={(e) => {

@@ -6,7 +6,7 @@ import BarIcon from "@components/icons/icon-bar";
 import CloseIcon from "@components/icons/icon-close";
 import { useEffect, useRef, useState } from "react";
 import LibraryItem from "@components/LibraryItem";
-import { LibraryType } from "@/types/Library";
+import {  LibraryType, LibraryTypeArtist } from "@/types/Library";
 import { fetchLibrary } from "@/api";
 
 const Library: React.FC = () => {
@@ -16,8 +16,11 @@ const Library: React.FC = () => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const contentRef = useRef<HTMLInputElement | null>(null);
-		const [library, setLibrary] = useState<LibraryType | null>(null);
-	
+
+	// luuq data library vừa fetch được
+	const [libraryData, setLibraryData] = useState<LibraryType | null>(null);
+
+	// Removed unused library state
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent): void {
 			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -41,17 +44,20 @@ const Library: React.FC = () => {
 	}, [keyword]);
 	useEffect(() => {
 		fetchLibrary()
-		.then((data: LibraryType | null) => {
-			if (data) {
-				setLibrary(data);
-			} else {
-				console.log("Library data is null");
-			}
-		})
-		.catch((error) => {
-			console.log(error);
-		});
-	},[])
+			.then((dataLibrary: LibraryType | null) => {
+				if (dataLibrary) {
+					setLibraryData(dataLibrary);
+					console.log("Fetched library data:", dataLibrary);
+				} else {
+					console.log("Library data is null");
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	}, []);
+
+console.log(libraryData?.followedArtists?.length || 0);
 	return (
 		<div className="sm:flex hidden w-[280px] min-h-0  flex-col">
 			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>
@@ -67,8 +73,20 @@ const Library: React.FC = () => {
 					</span>
 				</div>
 				<div className="flex items-center gap-2 mx-4 my-2">
-					<Tag title="Playlists" />
-					<Tag title="Artists" />
+					<Tag
+						title="Playlists"
+						isActive={false}
+						onClick={function (): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
+					<Tag
+						title="Artists"
+						isActive={false}
+						onClick={function (): void {
+							throw new Error("Function not implemented.");
+						}}
+					/>
 				</div>
 			</div>
 			<div className="flex-1 overflow-y-auto" ref={contentRef}>
@@ -154,78 +172,23 @@ const Library: React.FC = () => {
 									isShowing={false}
 								/>
 							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="Sơn Tùng M-TP"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying
-									isPlayingBar
-									isShowing={false}
-								/>
-							</li>
+
+							{libraryData?.followedArtists?.map((artist: LibraryTypeArtist, index) => (
+								<li key={index}>
+									<LibraryItem
+										title={artist.name}
+										type={"artist"}
+										url={artist.image}
+										idTrack={artist.id}
+										desc={""}
+										isShowing={false}
+										isPlaying={false}
+										isPlayingBar={false}
+									/>
+								</li>
+							))}
+
+							{/* Bạn có thể tiếp tục render playlists, albums, tracks nếu muốn */}
 						</ul>
 					</div>
 				</div>
