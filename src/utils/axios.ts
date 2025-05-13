@@ -39,7 +39,8 @@ export const injectStore = (_store: Store<RootState>): void => {
 // Request interceptor: camelCase → snake_case
 api.interceptors.request.use(
 	(config) => {
-		if (config.data && typeof config.data === "object") {
+		// Skip conversion for FormData
+		if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
 			config.data = snakecaseKeys(config.data as Record<string, unknown>, { deep: true });
 		}
 		return config;

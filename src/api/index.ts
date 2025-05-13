@@ -8,9 +8,14 @@ import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
 	try {
-		const response = await api.post("/auth/login/", data); // api.post thay bằng axios.post
+		const response = await api.post("/auth/login/", data);
 		if (response.status === 200) {
-			return response.data as AuthLoginResponse;
+			const userData = response.data as AuthLoginResponse;
+			// Store user ID in localStorage
+			if (userData.user?.id) {
+				localStorage.setItem('userId', userData.user.id.toString());
+			}
+			return userData;
 		}
 	} catch (error) {
 		throw new Error("Error logging in:" + (error as Error).message);
@@ -54,6 +59,8 @@ export const logoutAPI = async (): Promise<void> => {
 	try {
 		const response = await api.post("/auth/logout/");
 		if (response.status === 200) {
+			// Clear user data from localStorage
+			localStorage.removeItem('userId');
 			return;
 		}
 	} catch (error) {
@@ -189,6 +196,13 @@ export const fetchPlaylistDetailAPI = async (id: string): Promise<PlaylistDetail
   return null;
 };
 
+interface UpdatePlaylistData {
+  title?: string;
+  description?: string;
+  public?: boolean;
+  cover_image?: string;
+}
+
 /**
  * Creates a new playlist
  */
@@ -196,9 +210,17 @@ export const createPlaylistAPI = async (data: {
   title: string; 
   description?: string; 
   public?: boolean;
+  owner?: number;  // Add owner field
 }): Promise<Playlist | null> => {
   try {
-    const response = await api.post("/playlists", data);
+    // Get the current user's ID from localStorage or context if available
+    const owner = localStorage.getItem('userId');
+    const playlistData = {
+      ...data,
+      owner: owner ? parseInt(owner) : undefined
+    };
+    
+    const response = await api.post("/playlists/", playlistData);
     if (response.status === 201) {
       return response.data as Playlist;
     }
@@ -213,12 +235,7 @@ export const createPlaylistAPI = async (data: {
  */
 export const updatePlaylistAPI = async (
   id: string, 
-  data: {
-    title?: string;
-    description?: string;
-    public?: boolean;
-    cover_image?: string;
-  }
+  data: UpdatePlaylistData
 ): Promise<Playlist | null> => {
   try {
     const response = await api.put(`/playlists/${id}`, data);
@@ -234,14 +251,14 @@ export const updatePlaylistAPI = async (
 /**
  * Deletes a playlist
  */
-export const deletePlaylistAPI = async (id: string): Promise<boolean> => {
-  try {
-    const response = await api.delete(`/playlists/${id}`);
-    return response.status === 204;
-  } catch (error) {
-    console.error("Error deleting playlist:", error);
-    return false;
-  }
+export const deletePlaylistAPI = async (playlistId: string): Promise<boolean> => {
+	try {
+		const response = await api.delete(`/playlists/${playlistId}/`);
+		return response.status === 204 || response.status === 200;
+	} catch (error) {
+		console.error("Error deleting playlist:", error);
+		return false;
+	}
 };
 
 /**
@@ -328,17 +345,66 @@ export const getPlaylistsByUserId = async (userId: number = 1): Promise<Playlist
 		console.error("Error fetching playlists by user:", error);
 	}
 	return [];
+};// Xoá playlist
+
+// Cập nhật playlist
+export const updatePlaylist = async (
+  playlistId: string,
+  data: {
+    title?: string;
+    description?: string;
+    public?: boolean;
+    coverImage?: File;
+  }
+): Promise<Playlist | null> => {
+  try {
+    let requestConfig = {};
+    let requestData;
+
+    // If we have a file to upload, use FormData
+    if (data.coverImage) {
+      const formData = new FormData();
+      if (data.title) formData.append('title', data.title);
+      if (data.description !== undefined) formData.append('description', data.description);
+      if (data.public !== undefined) formData.append('public', String(data.public));
+      formData.append('cover_image', data.coverImage);
+
+      requestData = formData;
+      requestConfig = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+    } else {
+      // For non-file updates, use regular JSON
+      requestData = {
+        title: data.title,
+        description: data.description,
+        public: data.public,
+      };
+      requestConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+    }
+
+    const response = await api.patch(
+      `/playlists/${playlistId}/`, 
+      requestData,
+      requestConfig
+    );
+    
+    if (response.status === 200) {
+      return response.data as Playlist;
+    }
+  } catch (error) {
+    console.error("Error updating playlist:", error);
+  }
+  return null;
 };
 
-// Xoá playlist
-export const deletePlaylist = async (playlistId: number): Promise<boolean> => {
-	try {
-		const response = await api.delete(`/api/playlists/${playlistId}/`);
-		return response.status === 204 || response.status === 200;
-	} catch (error) {
-		console.error("Error deleting playlist:", error);
-		return false;
-	}
-};
+
+
 
 

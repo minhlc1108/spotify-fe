@@ -4,11 +4,12 @@ import Tag from "@components/Tag";
 import Search from "@components/icons/icon-search";
 import BarIcon from "@components/icons/icon-bar";
 import CloseIcon from "@components/icons/icon-close";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import LibraryItem from "@components/LibraryItem";
 import { useNavigate } from "react-router-dom";
-import { fetchUserPlaylistsAPI } from "@/api";
+import { fetchUserPlaylistsAPI, createPlaylistAPI } from "@/api";
 import { Playlist } from "@/types/Playlist";
+import { eventEmitter, PLAYLIST_UPDATED } from "@/utils/events";
 
 const Library: React.FC = () => {
 	const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -19,6 +20,31 @@ const Library: React.FC = () => {
 	const contentRef = useRef<HTMLInputElement | null>(null);
 	const [playList, setPlayList] = useState<Playlist[]>();
 	const navigate = useNavigate();
+
+	const fetchPlaylists = useCallback(async () => {
+		const data = await fetchUserPlaylistsAPI();
+		if (data) {
+			setPlayList(data);
+		}
+	}, []);
+
+	const handleCreatePlaylist = async () => {
+		try {
+			const newPlaylist = await createPlaylistAPI({
+				title: `My Playlist #${playList?.length ? playList.length + 1 : 1}`,
+				description: "New playlist",
+				public: true
+			});
+			
+			if (newPlaylist) {
+				setPlayList(prev => prev ? [...prev, newPlaylist] : [newPlaylist]);
+				void navigate(`/playlist/${newPlaylist.id}`, { replace: true });
+			}
+		} catch (error) {
+			console.error("Error creating playlist:", error);
+		}
+	};
+
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent): void {
 			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -42,15 +68,20 @@ const Library: React.FC = () => {
 	}, [keyword]);
 
 	useEffect(() => {
-		const fetchPlayList = async () => {
-			const data = await fetchUserPlaylistsAPI();
-			if (data) {
-				setPlayList(data);
-			}
+		void fetchPlaylists();
+
+		// Subscribe to playlist updates with a void callback
+		const handlePlaylistUpdate = () => {
+			void fetchPlaylists();
 		};
 
-		void fetchPlayList();
-	}, []);
+		eventEmitter.on(PLAYLIST_UPDATED, handlePlaylistUpdate);
+
+		return () => {
+			eventEmitter.off(PLAYLIST_UPDATED, handlePlaylistUpdate);
+		};
+	}, [fetchPlaylists]);
+
 	return (
 		<div className="sm:flex hidden w-[280px] min-h-0  flex-col">
 			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>
@@ -60,7 +91,10 @@ const Library: React.FC = () => {
 						Your Library
 					</button>
 					<span className="flex items-center">
-						<button className="group flex items-center p-2 rounded-full hover:bg-evevatedBase">
+						<button 
+							className="group flex items-center p-2 rounded-full hover:bg-evevatedBase"
+							onClick={handleCreatePlaylist}
+						>
 							<PlusIcon className="w-4 h-4 fill-[#b3b3b3] group-hover:fill-white" />
 						</button>
 					</span>
@@ -117,116 +151,20 @@ const Library: React.FC = () => {
 					</div>
 					<div>
 						<ul>
-							{playList?.map((pl, index) => (
-								<li key={index} onClick={() => navigate(`/playlist/${pl.id}`, { replace: true })}>
+							{playList?.map((pl) => (
+								<li key={pl.id} onClick={() => navigate(`/playlist/${pl.id}`, { replace: true })}>
 									<LibraryItem
-										title="Playlist của tôi #1"
+										title={pl.title}
 										type="playlist"
-										url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
-										_id="73DlGzZda4hdpTsGCiAir8"
-										desc="Playlist  • Minh.lcm."
+										url={pl.coverImage || ""}
+										_id={pl.id.toString()}
+										desc={`Playlist • ${pl.description || ''}`}
 										isPlaying={false}
 										isPlayingBar={false}
 										isShowing
 									/>
 								</li>
 							))}
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="Sơn Tùng M-TP"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101f5a79a6ca8c60e4ec1440be53"
-									_id="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying
-									isPlayingBar
-									isShowing={false}
-								/>
-							</li>
 						</ul>
 					</div>
 				</div>
