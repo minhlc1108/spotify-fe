@@ -192,7 +192,7 @@ console.log(libraryData?.followedArtists?.length || 0);
 										title={pl.title}
 										type="playlist"
 										url={pl.coverImage || ""}
-										_id={pl.id.toString()}
+										idTrack={pl.id.toString()}
 										desc={`Playlist • ${pl.description || ''}`}
 										isPlaying={false}
 										isPlayingBar={false}
