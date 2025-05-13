@@ -4,8 +4,12 @@ import Tag from "@components/Tag";
 import Search from "@components/icons/icon-search";
 import BarIcon from "@components/icons/icon-bar";
 import CloseIcon from "@components/icons/icon-close";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import LibraryItem from "@components/LibraryItem";
+import { useNavigate } from "react-router-dom";
+import { fetchUserPlaylistsAPI, createPlaylistAPI } from "@/api";
+import { Playlist } from "@/types/Playlist";
+import { eventEmitter, PLAYLIST_UPDATED } from "@/utils/events";
 import {  LibraryType, LibraryTypeArtist } from "@/types/Library";
 import { fetchLibrary } from "@/api";
 
@@ -16,6 +20,33 @@ const Library: React.FC = () => {
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const contentRef = useRef<HTMLInputElement | null>(null);
+	const [playList, setPlayList] = useState<Playlist[]>();
+	const navigate = useNavigate();
+
+	const fetchPlaylists = useCallback(async () => {
+		const data = await fetchUserPlaylistsAPI();
+		if (data) {
+			setPlayList(data);
+		}
+	}, []);
+
+	const handleCreatePlaylist = async () => {
+		try {
+			const newPlaylist = await createPlaylistAPI({
+				title: `My Playlist #${playList?.length ? playList.length + 1 : 1}`,
+				description: "New playlist",
+				public: true
+			});
+			
+			if (newPlaylist) {
+				setPlayList(prev => prev ? [...prev, newPlaylist] : [newPlaylist]);
+				void navigate(`/playlist/${newPlaylist.id}`, { replace: true });
+			}
+		} catch (error) {
+			console.error("Error creating playlist:", error);
+		}
+	};
+
 
 	// luuq data library vừa fetch được
 	const [libraryData, setLibraryData] = useState<LibraryType | null>(null);
@@ -42,6 +73,22 @@ const Library: React.FC = () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [keyword]);
+
+	useEffect(() => {
+		void fetchPlaylists();
+
+		// Subscribe to playlist updates with a void callback
+		const handlePlaylistUpdate = () => {
+			void fetchPlaylists();
+		};
+
+		eventEmitter.on(PLAYLIST_UPDATED, handlePlaylistUpdate);
+
+		return () => {
+			eventEmitter.off(PLAYLIST_UPDATED, handlePlaylistUpdate);
+		};
+	}, [fetchPlaylists]);
+
 	useEffect(() => {
 		fetchLibrary()
 			.then((dataLibrary: LibraryType | null) => {
@@ -67,7 +114,10 @@ console.log(libraryData?.followedArtists?.length || 0);
 						Your Library
 					</button>
 					<span className="flex items-center">
-						<button className="group flex items-center p-2 rounded-full hover:bg-evevatedBase">
+						<button 
+							className="group flex items-center p-2 rounded-full hover:bg-evevatedBase"
+							onClick={handleCreatePlaylist}
+						>
 							<PlusIcon className="w-4 h-4 fill-[#b3b3b3] group-hover:fill-white" />
 						</button>
 					</span>
@@ -136,43 +186,20 @@ console.log(libraryData?.followedArtists?.length || 0);
 					</div>
 					<div>
 						<ul>
-							<li>
-								<LibraryItem
-									title="Playlist của tôi #1"
-									type="playlist"
-									url="https://i.scdn.co/image/ab67616d000011eb1f24e7802fe66cb93779a44b"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Playlist  • Minh.lcm."
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-							<li>
-								<LibraryItem
-									title="TheFatRat"
-									type="artist"
-									url="https://i.scdn.co/image/ab6761610000101fc64c5f001dc3957cf5651460"
-									idTrack="73DlGzZda4hdpTsGCiAir8"
-									desc="Artist"
-									isPlaying={false}
-									isPlayingBar={false}
-									isShowing={false}
-								/>
-							</li>
-
+							{playList?.map((pl) => (
+								<li key={pl.id} onClick={() => navigate(`/playlist/${pl.id}`, { replace: true })}>
+									<LibraryItem
+										title={pl.title}
+										type="playlist"
+										url={pl.coverImage || ""}
+										_id={pl.id.toString()}
+										desc={`Playlist • ${pl.description || ''}`}
+										isPlaying={false}
+										isPlayingBar={false}
+										isShowing
+									/>
+								</li>
+							))}
 							{libraryData?.followedArtists?.map((artist: LibraryTypeArtist, index) => (
 								<li key={index}>
 									<LibraryItem

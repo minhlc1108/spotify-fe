@@ -23,6 +23,7 @@ const processQueue = (error: unknown): void => {
 const api: AxiosInstance = axios.create({
 	baseURL: "http://localhost:8000/api",
 	withCredentials: true,
+	allowAbsoluteUrls: true,
 	headers: {
 		"Content-Type": "application/json",
 		Accept: "application/json",
@@ -37,7 +38,8 @@ export const injectStore = (_store: Store<RootState>): void => {
 // Request interceptor: camelCase → snake_case
 api.interceptors.request.use(
 	(config) => {
-		if (config.data && typeof config.data === "object") {
+		// Skip conversion for FormData
+		if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
 			config.data = snakecaseKeys(config.data as Record<string, unknown>, { deep: true });
 		}
 		return config;

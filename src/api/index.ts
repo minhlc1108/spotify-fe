@@ -4,14 +4,20 @@ import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
 import { PlayState } from "@/types/PlayState";
 import { SearchResult } from "@/types/Search";
 import { Track, TrackDetail } from "@/types/Track";
+import { Playlist, PlaylistDetail } from "@/types/Playlist";
 import { LibraryType } from "@/types/Library";
 import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
 	try {
-		const response = await api.post("/auth/login/", data); // api.post thay bằng axios.post
+		const response = await api.post("/auth/login/", data);
 		if (response.status === 200) {
-			return response.data as AuthLoginResponse;
+			const userData = response.data as AuthLoginResponse;
+			// Store user ID in localStorage
+			if (userData.user?.id) {
+				localStorage.setItem('userId', userData.user.id.toString());
+			}
+			return userData;
 		}
 	} catch (error) {
 		throw new Error("Error logging in:" + (error as Error).message);
@@ -70,6 +76,8 @@ export const logoutAPI = async (): Promise<void> => {
 	try {
 		const response = await api.post("/auth/logout/");
 		if (response.status === 200) {
+			// Clear user data from localStorage
+			localStorage.removeItem('userId');
 			return;
 		}
 	} catch (error) {
@@ -137,6 +145,19 @@ export const fetchTrackDetailAPI = async (id: string): Promise<TrackDetail | nul
 	} catch (error) {
 		console.error("Error fetching track detail:", error);
 	}
+		return null;
+	};
+	
+// Tạo Playlist
+export const createPlaylist = async (): Promise<Playlist | null> => {
+	try {
+		const response = await api.post("/api/playlists/");
+		if (response.status === 201 || response.status === 200) {
+			return response.data as Playlist;
+		}
+	} catch (error) {
+		console.error("Error creating playlist:", error);
+	}
 	return null;
 };
 
@@ -147,7 +168,19 @@ export const fetchAlbumDetailAPI = async (id: string): Promise<AlbumDetail | nul
 			return response.data as AlbumDetail;
 		}
 	} catch (error) {
-		console.error("Error fetching album detail:", error);
+		console.error("Error fetching album detail:", error);}
+		return null;
+	};
+	
+// Lấy playlist theo ID
+export const getPlaylist = async (playlistId: number): Promise<PlaylistDetail | null> => {
+	try {
+		const response = await api.get(`/api/playlists/${playlistId}/`);
+		if (response.status === 200) {
+			return response.data as PlaylistDetail;
+		}
+	} catch (error) {
+		console.error("Error fetching playlist:", error);
 	}
 	return null;
 };
@@ -163,6 +196,247 @@ export const fetchArtistDetailAPI = async (id: string): Promise<ArtistDetail | n
 	}
 	return null;
 };
+
+export const fetchUserPlaylistsAPI = async (): Promise<Playlist[]> => {
+  try {
+    const response = await api.get("/playlists/");
+    if (Array.isArray(response.data)) {
+      return response.data as Playlist[];
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching playlists:", error);
+    return [];
+  }
+};
+
+/**
+ * Fetches a specific playlist by ID with its tracks
+ */
+export const fetchPlaylistDetailAPI = async (id: string): Promise<PlaylistDetail | null> => {
+  try {
+    const response = await api.get(`/playlists/${id}`);
+    if (response.status === 200) {
+      return response.data as PlaylistDetail;
+    }
+  } catch (error) {
+    console.error("Error fetching playlist detail:", error);
+  }
+  return null;
+};
+
+interface UpdatePlaylistData {
+  title?: string;
+  description?: string;
+  public?: boolean;
+  cover_image?: string;
+}
+
+/**
+ * Creates a new playlist
+ */
+export const createPlaylistAPI = async (data: { 
+  title: string; 
+  description?: string; 
+  public?: boolean;
+  owner?: number;  // Add owner field
+}): Promise<Playlist | null> => {
+  try {
+    // Get the current user's ID from localStorage or context if available
+    const owner = localStorage.getItem('userId');
+    const playlistData = {
+      ...data,
+      owner: owner ? parseInt(owner) : undefined
+    };
+    
+    const response = await api.post("/playlists/", playlistData);
+    if (response.status === 201) {
+      return response.data as Playlist;
+    }
+  } catch (error) {
+    console.error("Error creating playlist:", error);
+  }
+  return null;
+};
+
+/**
+ * Updates an existing playlist
+ */
+export const updatePlaylistAPI = async (
+  id: string, 
+  data: UpdatePlaylistData
+): Promise<Playlist | null> => {
+  try {
+    const response = await api.put(`/playlists/${id}`, data);
+    if (response.status === 200) {
+      return response.data as Playlist;
+    }
+  } catch (error) {
+    console.error("Error updating playlist:", error);
+  }
+  return null;
+};
+
+/**
+ * Deletes a playlist
+ */
+export const deletePlaylistAPI = async (playlistId: string): Promise<boolean> => {
+	try {
+		const response = await api.delete(`/playlists/${playlistId}/`);
+		return response.status === 204 || response.status === 200;
+	} catch (error) {
+		console.error("Error deleting playlist:", error);
+		return false;
+	}
+};
+
+/**
+ * Adds a track to a playlist
+ */
+export const addTrackToPlaylistAPI = async (
+  playlistId: string, 
+  trackId: string
+): Promise<boolean> => {
+  try {
+    const response = await api.post(`/playlists/${playlistId}/tracks`, { trackId: trackId });
+    return response.status === 201;
+  } catch (error) {
+    console.error("Error adding track to playlist:", error);
+    return false;
+  }
+};
+
+/**
+ * Removes a track from a playlist
+ */
+export const removeTrackFromPlaylistAPI = async (
+  playlistId: string, 
+  trackId: string
+): Promise<boolean> => {
+  try {
+    const response = await api.delete(`/playlists/${playlistId}/tracks/${trackId}`);
+    return response.status === 204;
+  } catch (error) {
+    console.error("Error removing track from playlist:", error);
+    return false;
+  }
+};
+
+/**
+ * Reorders tracks in a playlist
+ */
+export const reorderPlaylistTracksAPI = async (
+  playlistId: string,
+  trackIds: string[]
+): Promise<boolean> => {
+  try {
+    const response = await api.put(`/playlists/${playlistId}/tracks/order`, { trackIds: trackIds });
+    return response.status === 200;
+  } catch (error) {
+    console.error("Error reordering playlist tracks:", error);
+    return false;
+  }
+};
+
+/**
+ * Saves a playlist to user's library
+ */
+export const savePlaylistToLibraryAPI = async (playlistId: string): Promise<boolean> => {
+  try {
+    const response = await api.post(`/library/playlists`, { playlistId: playlistId });
+    return response.status === 201;
+  } catch (error) {
+    console.error("Error saving playlist to library:", error);
+    return false;
+  }
+};
+
+/**
+ * Removes a playlist from user's library
+ */
+export const removePlaylistFromLibraryAPI = async (playlistId: string): Promise<boolean> => {
+  try {
+    const response = await api.delete(`/library/playlists/${playlistId}`);
+    return response.status === 204;
+  } catch (error) {
+    console.error("Error removing playlist from library:", error);
+    return false;
+  }
+};
+// Lấy tất cả playlists của user ID = 1 (hoặc truyền user ID vào cho đúng hơn)
+export const getPlaylistsByUserId = async (userId: number = 1): Promise<Playlist[]> => {
+	try {
+		const response = await api.get(`/api/playlists/user/${userId}/`);
+		if (Array.isArray(response.data)) {
+			return response.data as Playlist[];
+		}
+	} catch (error) {
+		console.error("Error fetching playlists by user:", error);
+	}
+	return [];
+};// Xoá playlist
+
+// Cập nhật playlist
+export const updatePlaylist = async (
+  playlistId: string,
+  data: {
+    title?: string;
+    description?: string;
+    public?: boolean;
+    coverImage?: File;
+  }
+): Promise<Playlist | null> => {
+  try {
+    let requestConfig = {};
+    let requestData;
+
+    // If we have a file to upload, use FormData
+    if (data.coverImage) {
+      const formData = new FormData();
+      if (data.title) formData.append('title', data.title);
+      if (data.description !== undefined) formData.append('description', data.description);
+      if (data.public !== undefined) formData.append('public', String(data.public));
+      formData.append('cover_image', data.coverImage);
+
+      requestData = formData;
+      requestConfig = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+    } else {
+      // For non-file updates, use regular JSON
+      requestData = {
+        title: data.title,
+        description: data.description,
+        public: data.public,
+      };
+      requestConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+    }
+
+    const response = await api.patch(
+      `/playlists/${playlistId}/`, 
+      requestData,
+      requestConfig
+    );
+    
+    if (response.status === 200) {
+      return response.data as Playlist;
+    }
+  } catch (error) {
+    console.error("Error updating playlist:", error);
+  }
+  return null;
+};
+
+
+
+
+
 
 export const searchAPI = async (keyword: string): Promise<SearchResult> => {
 	try {
