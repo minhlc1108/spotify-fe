@@ -60,6 +60,7 @@ const Artist: React.FC = () => {
 					title={"Album"}
 				></Section>
 			</div>
+			
 		</div>
 	);
 };

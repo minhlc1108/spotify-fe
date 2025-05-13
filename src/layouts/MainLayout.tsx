@@ -12,7 +12,6 @@ const MainLayout: React.FC = () => {
 	const user = useAppSelector((state) => state.auth.user);
 	useEffect(() => {
 		if (user != null) {
-			console.log(user);
 			void dispatch(fetchPlayState());
 		}
 	}, [dispatch, user]);

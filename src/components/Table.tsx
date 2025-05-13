@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import PlusCirle from "./icons/icon-plusCirle";
 import MoreIcon from "./icons/icon-more";
 import PlayIcon from "./icons/icon-play";
-import DownloadIcon from "./icons/icon-download";
 import { SimpleTrack } from "@/types/Track";
 import { formatSecondsToMinutes } from "@/utils/format";
 import { Link } from "react-router-dom";
