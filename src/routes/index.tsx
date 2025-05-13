@@ -10,6 +10,7 @@ import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import Playlist from "@/pages/Playlist";
 import Register from "@/pages/Register";
+import { Sample } from "@/pages/Sample";
 import Search from "@/pages/Search";
 import Track from "@/pages/Track";
 import TrackList from "@/pages/TrackList";
@@ -21,6 +22,7 @@ const AppRouter: React.FC = () => {
 	return (
 		<Router>
 			<Routes>
+				<Route path="sample" element={<Sample />} />
 				<Route path="login" element={<Login />} />
 				<Route path="register" element={<Register />} />
 				<Route path="/" element={<MainLayout />}>

@@ -4,6 +4,7 @@ import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
 import { PlayState } from "@/types/PlayState";
 import { SearchResult } from "@/types/Search";
 import { Track, TrackDetail } from "@/types/Track";
+import { LibraryType } from "@/types/Library";
 import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
@@ -177,4 +178,13 @@ export const searchAPI = async (keyword: string): Promise<SearchResult> => {
 		artists: [],
 		tracks: [],
 	};
+};
+export const fetchLibrary = async (): Promise<LibraryType | null> => {
+	try {
+		const response = await api.get("/library");
+		return response.data as LibraryType;
+	} catch (error) {
+		console.error("Error fetching library:", error);
+		return null;
+	}
 };
