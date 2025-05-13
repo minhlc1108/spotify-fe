@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Track } from "@/types/Track";
-
+import { formatDistance as dateFnsFormatDistance } from 'date-fns';
 
 interface TrackListProps {
   tracks: Track[];
@@ -32,13 +32,17 @@ const TrackList: React.FC<TrackListProps> = ({
     }
   };
 
-    function formatDistance(arg0: Date, arg1: Date, arg2: { addSuffix: boolean; }): React.ReactNode {
-        throw new Error("Function not implemented.");
-    }
+  const formatDistance = (date1: Date, date2: Date, options: { addSuffix: boolean }) => {
+    return dateFnsFormatDistance(date1, date2, options);
+  };
 
-    function formatDuration(duration: number): React.ReactNode {
-        throw new Error("Function not implemented.");
-    }
+  const formatDuration = (duration: number): string => {
+    if (!duration) return '0:00';
+    
+    const minutes = Math.floor(duration / 60);
+    const seconds = Math.floor(duration % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="track-list w-full mt-4">

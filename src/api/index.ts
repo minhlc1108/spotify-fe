@@ -269,7 +269,7 @@ export const addTrackToPlaylistAPI = async (
   trackId: string
 ): Promise<boolean> => {
   try {
-    const response = await api.post(`/playlists/${playlistId}/tracks`, { trackId: trackId });
+	const response = await api.post(`/playlists/${playlistId}/tracks/`, { trackId });
     return response.status === 201;
   } catch (error) {
     console.error("Error adding track to playlist:", error);
