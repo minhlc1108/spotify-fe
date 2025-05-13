@@ -6,7 +6,6 @@ import PlusCirle from "./icons/icon-plusCirle";
 import ShuffleIcon from "./icons/icon-shuffle";
 import NextIcon from "./icons/icon-next";
 import RepeatIcon from "./icons/icon-repeat";
-import MicIcon from "./icons/icon-micro";
 import SqueueIcon from "./icons/icon-queue";
 import FullScreenIcon from "./icons/icon-fullScreen";
 import { OpenMiniPlayerIcon } from "./icons/icon-miniPlayer";
@@ -17,6 +16,7 @@ import { formatSecondsToMinutes } from "@/utils/format";
 import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
 import { PlayState } from "@/types/PlayState";
+import DownloadButton from "./DownloadButton";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -238,9 +238,7 @@ const PlayBar: React.FC = () => {
 
 			{/* Right - Volume & tiện ích */}
 			<div className="flex items-center gap-4">
-				<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
-					<MicIcon />
-				</button>
+				<DownloadButton context={"track"} audio={playState.currentTrack} />
 
 				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
 					<SqueueIcon />
