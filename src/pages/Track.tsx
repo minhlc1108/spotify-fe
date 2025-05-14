@@ -41,7 +41,20 @@ const Track: React.FC = () => {
 				releaseDate={trackDetail.releaseDate}
 				playCount={trackDetail.playCount}
 			/>
-			<TrackActions id={id} />
+			<TrackActions
+				track={{
+					id: trackDetail.id,
+					title: trackDetail.title,
+					duration: trackDetail.duration,
+					artists: trackDetail.artists,
+					coverImage: trackDetail.coverImage,
+					audioFile: trackDetail.audioFile,
+					videoFile: trackDetail.videoFile,
+					album: trackDetail.album?.id,
+					genres: trackDetail.genres?.map((genre) => genre.id),
+					playCount: trackDetail.playCount,
+				}}
+			/>
 			<Lyrics lyrics={trackDetail.lyrics || ""} />
 			<ArtistList artists={trackDetail.artists} />
 		</div>

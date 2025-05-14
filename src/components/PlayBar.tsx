@@ -46,7 +46,7 @@ const PlayBar: React.FC = () => {
 					tracks = await fetchListTrack();
 					dispatch(setTracks(tracks));
 					break;
-				case "playlist":
+				case "artist":
 					await fetchArtistDetailAPI(playState.contextId || "").then((data) => {
 						dispatch(setTracks(data?.tracks || []));
 					});
@@ -159,7 +159,34 @@ const PlayBar: React.FC = () => {
 			audio.currentTime = playState.progress;
 			if (video) video.currentTime = playState.progress;
 		}
-	}, [playState.progress, isDragging]);
+		if (playState.progress === playState.currentTrack?.duration) {
+			const nextPosition = playState.positionInContext + 1 >= tracks.length ? 0 : playState.positionInContext + 1;
+			const newPosition = playState.isLooping
+				? playState.positionInContext
+				: playState.isShuffle
+					? Math.floor(Math.random() * tracks.length)
+					: nextPosition;
+			dispatch(
+				setPlayState({
+					...playState,
+					currentTrack: tracks[newPosition],
+					positionInContext: newPosition,
+					progress: 0,
+					isPlaying: true,
+				})
+			);
+			void dispatch(
+				updatePlayState({
+					...playState,
+					currentTrack: tracks[newPosition],
+					positionInContext: newPosition,
+					progress: 0,
+					isPlaying: true,
+				})
+			);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [playState.progress, isDragging, dispatch, playState.currentTrack?.duration]);
 
 	// Sync volume từ Redux → audio
 	useEffect(() => {
