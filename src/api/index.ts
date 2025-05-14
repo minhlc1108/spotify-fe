@@ -3,7 +3,7 @@ import { Artist, ArtistDetail } from "@/types/Artist";
 import { AuthLogin, AuthLoginResponse, AuthRegister } from "@/types/Auth";
 import { PlayState } from "@/types/PlayState";
 import { SearchResult } from "@/types/Search";
-import { Track, TrackDetail } from "@/types/Track";
+import { SimpleTrack, Track, TrackDetail } from "@/types/Track";
 import { LibraryType } from "@/types/Library";
 import api from "@/utils/axios";
 
@@ -45,7 +45,6 @@ export const patchPlayState = async (playState: PlayState): Promise<PlayState> =
 			lastUpdated: rest.lastUpdated,
 		};
 
-		console.log("payload sent to BE", payload);
 		const response = await api.patch("/playstate/", payload);
 		return response.data as PlayState;
 	} catch (error) {
@@ -115,11 +114,11 @@ export const fetchListAlbum = async (): Promise<Album[]> => {
 	}
 };
 
-export const fetchListTrack = async (): Promise<Track[]> => {
+export const fetchListTrack = async (): Promise<SimpleTrack[]> => {
 	try {
 		const response = await api.get("/track");
 		if (Array.isArray(response.data)) {
-			return response.data as Track[];
+			return response.data as SimpleTrack[];
 		}
 		return [];
 	} catch (error) {
