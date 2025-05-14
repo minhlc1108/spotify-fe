@@ -20,7 +20,7 @@ const Artist: React.FC = () => {
 			.then((data) => {
 				if (data) {
 					setArtistDetail(data);
-					console.log(data)
+					console.log(data);
 				}
 			})
 			.catch((error) => {
@@ -45,7 +45,7 @@ const Artist: React.FC = () => {
 		} catch (error) {
 			console.error("Error following artist:", error);
 		}
-	}
+	};
 	const handleUnfollow = async (id: string) => {
 		try {
 			const result = await fetchDelItemFromLibrary({ id, type: "artist" });
@@ -60,7 +60,7 @@ const Artist: React.FC = () => {
 		} catch (error) {
 			console.error("Error unfollowing artist:", error);
 		}
-	}
+	};
 
 	return (
 		<div className="w-full min-h-full bg-gradient-to-b from-zinc-900 via-zinc-800 to-black text-white flex flex-col gap-6">
@@ -70,11 +70,21 @@ const Artist: React.FC = () => {
 					<PlayIcon className="w-3/5 h-3/5 " />
 				</button>
 				{isFollow ? (
-					<button className="w-4 h-4" onClick={() => {handleUnfollow(artistDetail.id)}}>
+					<button
+						className="w-4 h-4"
+						onClick={async () => {
+							await handleUnfollow(artistDetail.id);
+						}}
+					>
 						<PlusCirle fill="green" />
 					</button>
 				) : (
-					<button className="w-4 h-4" onClick={() => {handleFollow(artistDetail.id)}}>
+					<button
+						className="w-4 h-4"
+						onClick={async () => {
+							await handleFollow(artistDetail.id);
+						}}
+					>
 						<PlusCirle fill="#fff" />
 					</button>
 				)}
@@ -101,7 +111,6 @@ const Artist: React.FC = () => {
 					title={"Album"}
 				></Section>
 			</div>
-			
 		</div>
 	);
 };

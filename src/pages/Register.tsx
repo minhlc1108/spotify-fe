@@ -50,10 +50,8 @@ const Register: React.FC = () => {
 			password,
 			rePassword,
 		};
-		const resultAction = await dispatch(register(data));
-		if (register.rejected.match(resultAction)) {
-			// Lỗi đăng ký, bạn có thể lấy message từ error state
-		}
+
+		await dispatch(register(data));
 	};
 
 	return (

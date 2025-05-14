@@ -27,6 +27,7 @@ export const login = createAsyncThunk("auth/login", async (credentials: AuthLogi
 
 export const register = createAsyncThunk("auth/register", async (data: AuthRegister, { rejectWithValue }) => {
 	const res = await registerAPI(data);
+	console.log(res);
 	return res as unknown as User; // hoặc toàn bộ res nếu cần access/refresh
 });
 
@@ -57,6 +58,7 @@ const authSlice = createSlice({
 				state.error = null;
 			})
 			.addCase(register.fulfilled, (state, action: PayloadAction<User>) => {
+				console.log(action.payload);
 				state.status = "succeeded";
 				state.user = action.payload;
 			})
