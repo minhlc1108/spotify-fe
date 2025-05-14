@@ -237,11 +237,13 @@ const PlayBar: React.FC = () => {
 						))}
 					</ul>
 				</div>
-				<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
-
-					<PlusCircleAction fill="#ccc" trackId={playState?.currentTrack?.id || "" } position="fixed" />
-					
-				</div>
+					{
+					playState.currentTrack?.id && (
+						<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
+							<PlusCircleAction fill="#ccc" trackId={playState?.currentTrack?.id || "" } position="fixed" />
+						</div>
+						)
+					}
 			</div>
 
 			{/* Center - Các nút điều khiển & thanh tiến trình */}

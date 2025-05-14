@@ -1,6 +1,7 @@
 import { addTrackToPlaylistAPI, fetchUserPlaylistsAPI } from "@/api";
 import { useState } from "react";
 import PlusCirle from "./icons/icon-plusCirle";
+import { toast } from "react-toastify";
 
 interface Playlist {
 	title: string;
@@ -34,6 +35,8 @@ const PlusCircleAction = (props: PlusCircleActionProps) => {
 		try {
 			const success = await addTrackToPlaylistAPI(playlist.id, trackId);
 			if (success) {
+				toast.success(`Track added to playlist: ${playlist.title}`);
+				setIsModalOpen(false);
 				console.log(`Track successfully added to playlist: ${playlist}`);
 			} else {
 				console.error(`Failed to add track to playlist: ${playlist}`);
