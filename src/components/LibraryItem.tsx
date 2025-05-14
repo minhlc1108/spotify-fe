@@ -20,7 +20,7 @@ const LibraryItem: React.FC<LibraryItemProps> = (props) => {
 	const [isPlaying, setIsPlaying] = useState<boolean>(props.isPlaying);
 	const [isPlayingBar, setIsPlayingBar] = useState<boolean>(props.isPlayingBar);
 	return (
-		<Link to={`/${props.type}/${props.idTrack}`} onClick={() => setIsShowing(true)}>
+		<Link to={`/${props.type}/${props.idTrack}`} onClick={() =>{setIsShowing(isShowing)} }>
 			<div
 				className={`group grid p-2 gap-3 ${isShowing ? "bg-evevatedHighlight hover:bg-[#ffffff36]" : "bg-transparent hover:bg-evevatedBase"}  rounded-md`}
 				style={{
@@ -31,7 +31,7 @@ const LibraryItem: React.FC<LibraryItemProps> = (props) => {
 				<div
 					className={`col-start-1 col-end-1 relative  ${props.type === "playlist" ? "rounded-sm" : "rounded-full"} overflow-hidden`}
 				>
-					<img height="48" width="48" className={`h-full w-full object-cover object-center`} src={props.url} alt="" />
+					<img height="48" width="48" className={`h-[48px] w-[48px] object-cover object-center`} src={props.url} alt="" />
 					<button
 						className="group-hover:flex absolute hidden items-center justify-center top-0 left-0 right-0 bottom-0 bg-black/50"
 						onClick={(e) => {
@@ -46,7 +46,7 @@ const LibraryItem: React.FC<LibraryItemProps> = (props) => {
 				</div>
 				<div className="flex items-center justify-between">
 					<div className="-col-end-1 flex flex-col justify-center gap-1">
-						<div className={` text-base font-normal ${isPlayingBar ? "text-active" : "text-white"}`}>{props.title}</div>
+						<div className={` text-base font-normal ${isPlaying ? "text-active" : "text-white"}`}>{props.title}</div>
 						<div className="text-[#b3b3b3] text-sm">{props.desc}</div>
 					</div>
 					{isPlaying && (

@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import PauseIcon from "../icons/icon-pause";
 import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { SimpleTrack } from "@/types/Track";
+import PlusCircleAction from "../PlusCirleAction";
 
 interface TrackActionsProps {
 	track: SimpleTrack;
@@ -68,7 +69,7 @@ const TrackActions: React.FC<TrackActionsProps> = ({ track }) => {
 				)}
 			</button>
 			<button className="text-white">
-				<PlusCirle width={24} fill="#ccc" />
+				<PlusCircleAction trackId={track.id} width={24} fill="#ccc" />
 			</button>
 			<button className="text-white hover:text-gray-400">
 				<DownloadIcon width={24} fill="#ccc" />

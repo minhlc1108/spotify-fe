@@ -19,6 +19,7 @@ import { PlayState } from "@/types/PlayState";
 import DownloadButton from "./DownloadButton";
 import { fetchArtistDetailAPI, fetchListTrack, fetchAlbumDetailAPI } from "@/api";
 import { setTracks } from "@/store/slices/listTrackSlice";
+import PlusCircleAction from "./PlusCirleAction";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -236,9 +237,13 @@ const PlayBar: React.FC = () => {
 						))}
 					</ul>
 				</div>
-				<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
-					<PlusCirle fill="#ccc" />
-				</div>
+					{
+					playState.currentTrack?.id && (
+						<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
+							<PlusCircleAction fill="#ccc" trackId={playState?.currentTrack?.id || "" } position="fixed" />
+						</div>
+						)
+					}
 			</div>
 
 			{/* Center - Các nút điều khiển & thanh tiến trình */}
