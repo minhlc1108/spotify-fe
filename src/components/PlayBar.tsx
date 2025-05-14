@@ -17,6 +17,8 @@ import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
 import { PlayState } from "@/types/PlayState";
 import DownloadButton from "./DownloadButton";
+import { fetchArtistDetailAPI, fetchListTrack, fetchAlbumDetailAPI } from "@/api";
+import { setTracks } from "@/store/slices/listTrackSlice";
 import PlusCircleAction from "./PlusCirleAction";
 
 const PlayBar: React.FC = () => {
@@ -28,6 +30,7 @@ const PlayBar: React.FC = () => {
 	const [showFullScreen, setShowFullScreen] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
+	const tracks = useAppSelector((state) => state.listTrack.tracks);
 
 	// handle khi change thì update
 	const handleToggleShuffle = (): void => {
@@ -36,6 +39,30 @@ const PlayBar: React.FC = () => {
 		dispatch(setPlayState(updated));
 	};
 
+	useEffect(() => {
+		const fetchTracks = async () => {
+			let tracks;
+			switch (playState.contextType) {
+				case null:
+					tracks = await fetchListTrack();
+					dispatch(setTracks(tracks));
+					break;
+				case "artist":
+					await fetchArtistDetailAPI(playState.contextId || "").then((data) => {
+						dispatch(setTracks(data?.tracks || []));
+					});
+					break;
+				case "album":
+					await fetchAlbumDetailAPI(playState.contextId || "").then((data) => {
+						dispatch(setTracks(data?.tracks || []));
+					});
+					break;
+				default:
+					break;
+			}
+		};
+		void fetchTracks();
+	}, [playState.contextType, playState.contextId, dispatch]);
 	// handle khi tab bị tắt hoặc mất focus
 	useEffect(() => {
 		const handleBeforeUnload = (): void => {
@@ -48,8 +75,8 @@ const PlayBar: React.FC = () => {
 
 	const handleToggleLoop = async (): Promise<void> => {
 		const updated = { ...playState, isLooping: !playState.isLooping };
-		await dispatch(updatePlayState(updated));
 		dispatch(setPlayState(updated));
+		await dispatch(updatePlayState(updated));
 		// API call
 	};
 
@@ -57,7 +84,7 @@ const PlayBar: React.FC = () => {
 		if (!playState.currentTrack) return;
 
 		// Hàm cập nhật trạng thái và gửi API
-		const update = async (): Promise<void> => {
+		const update = () => {
 			// Cập nhật lại Redux playState
 			const newPlayState: PlayState = {
 				currentTrack: playState.currentTrack,
@@ -81,7 +108,7 @@ const PlayBar: React.FC = () => {
 			if (video) video.loop = !!newPlayState.isLooping;
 
 			// Gọi API để đồng bộ với Backend
-			await dispatch(updatePlayState(newPlayState));
+			void dispatch(updatePlayState(newPlayState));
 		};
 
 		// Gọi hàm update ngay khi có thay đổi
@@ -133,7 +160,34 @@ const PlayBar: React.FC = () => {
 			audio.currentTime = playState.progress;
 			if (video) video.currentTime = playState.progress;
 		}
-	}, [playState.progress, isDragging]);
+		if (playState.progress === playState.currentTrack?.duration) {
+			const nextPosition = playState.positionInContext + 1 >= tracks.length ? 0 : playState.positionInContext + 1;
+			const newPosition = playState.isLooping
+				? playState.positionInContext
+				: playState.isShuffle
+					? Math.floor(Math.random() * tracks.length)
+					: nextPosition;
+			dispatch(
+				setPlayState({
+					...playState,
+					currentTrack: tracks[newPosition],
+					positionInContext: newPosition,
+					progress: 0,
+					isPlaying: true,
+				})
+			);
+			void dispatch(
+				updatePlayState({
+					...playState,
+					currentTrack: tracks[newPosition],
+					positionInContext: newPosition,
+					progress: 0,
+					isPlaying: true,
+				})
+			);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [playState.progress, isDragging, dispatch, playState.currentTrack?.duration]);
 
 	// Sync volume từ Redux → audio
 	useEffect(() => {
@@ -150,7 +204,6 @@ const PlayBar: React.FC = () => {
 		if (!audio) return;
 
 		if (playState.isPlaying && playState.currentTrack?.audioFile) {
-			// audio.load(); // reset lại audio để tránh bug
 			audio.play().catch(() => {});
 			video?.play().catch(() => {});
 		}
@@ -165,9 +218,9 @@ const PlayBar: React.FC = () => {
 	}, [showVideo]);
 
 	return (
-		<div className=" h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
+		<div className=" h-full w-full bg-black flex items-center px-4 text-white overflow-hidden">
 			{/* Left - Thông tin bài hát */}
-			<div className="flex items-center gap-4 z-10">
+			<div className="flex items-center gap-4 z-10 w-1/4">
 				{playState.currentTrack?.coverImage && <img className="w-12" src={playState.currentTrack.coverImage} alt="" />}
 				<div className="px-3">
 					<Link to={"/album/" + playState.currentTrack?.album} className="text-s font-bold hover:underline">
@@ -192,7 +245,7 @@ const PlayBar: React.FC = () => {
 			</div>
 
 			{/* Center - Các nút điều khiển & thanh tiến trình */}
-			<div className="flex flex-col items-center z-10">
+			<div className="flex flex-col items-center z-10 w-2/4">
 				<div className="flex items-center gap-6">
 					<button
 						onClick={handleToggleShuffle}
@@ -201,7 +254,38 @@ const PlayBar: React.FC = () => {
 						<ShuffleIcon fill={!playState.isShuffle ? "#ccc" : "#3be477"} />
 					</button>
 
-					<button className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80">
+					<button
+						className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={() => {
+							if (tracks) {
+								const nextPosition =
+									playState.positionInContext - 1 < 0 ? tracks?.length - 1 : playState.positionInContext - 1;
+								const newPosition = playState.isLooping
+									? playState.positionInContext
+									: playState.isShuffle
+										? Math.floor(Math.random() * tracks.length)
+										: nextPosition;
+								dispatch(
+									setPlayState({
+										...playState,
+										positionInContext: newPosition,
+										currentTrack: tracks[newPosition],
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+								void dispatch(
+									updatePlayState({
+										...playState,
+										positionInContext: newPosition,
+										currentTrack: tracks[newPosition],
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+							}
+						}}
+					>
 						<NextIcon fill="#ccc" />
 					</button>
 
@@ -212,7 +296,38 @@ const PlayBar: React.FC = () => {
 						{playState.isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
 					</button>
 
-					<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
+					<button
+						className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={() => {
+							if (tracks) {
+								const nextPosition =
+									playState.positionInContext + 1 >= tracks.length ? 0 : playState.positionInContext + 1;
+								const newPosition = playState.isLooping
+									? playState.positionInContext
+									: playState.isShuffle
+										? Math.floor(Math.random() * tracks.length)
+										: nextPosition;
+								dispatch(
+									setPlayState({
+										...playState,
+										currentTrack: tracks[newPosition] ? tracks[newPosition] : tracks[0],
+										positionInContext: tracks[newPosition] ? newPosition : 0,
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+								void dispatch(
+									updatePlayState({
+										...playState,
+										positionInContext: newPosition,
+										currentTrack: tracks[newPosition],
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+							}
+						}}
+					>
 						<NextIcon fill="#ccc" />
 					</button>
 
@@ -248,7 +363,7 @@ const PlayBar: React.FC = () => {
 			</div>
 
 			{/* Right - Volume & tiện ích */}
-			<div className="flex items-center gap-4">
+			<div className="flex items-center gap-4 justify-end w-1/4">
 				<DownloadButton context={"track"} audio={playState.currentTrack} />
 
 				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">

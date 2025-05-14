@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import PlayIcon from "@components/icons/icon-play";
-import { useState } from "react";
 import PauseIcon from "@components/icons/icon-pause";
 import DefaultIcon from "./icons/icon-default";
-import { fetchAlbumDetailAPI, fetchArtistDetails, fetchTrackDetailAPI } from "@/api";
+import { fetchAlbumDetailAPI, fetchArtistDetails, fetchListTrack, fetchTrackDetailAPI } from "@/api";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { PlayState } from "@/types/PlayState";
 import { toast } from "react-toastify";
+import { setTracks } from "@/store/slices/listTrackSlice";
 
 export interface MusicCardProps {
 	data: {
@@ -20,74 +20,85 @@ export interface MusicCardProps {
 }
 
 const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
-	const [isPlaying, setIsPlaying] = useState(false);
 	const playState = useAppSelector((state) => state.playState);
 	const user = useAppSelector((state) => state.auth.user);
-	// console.log ('this is context page ', context);
 	const dispatch = useAppDispatch();
 	// Hàm xử lý nhấn nút Play/Pause
 	const handlePlayPauseClick = async (e: React.MouseEvent): Promise<void> => {
 		e.stopPropagation();
+
 		if (!user) {
 			toast.error("Bạn phải đăng nhập để sử dụng tính năng này");
 			return;
 		}
-		console.log("this is context music card ", context);
-		let track = null;
-		// Xử lý tùy theo context
-		if (!context) {
-			const trackDetail = await fetchTrackDetailAPI(data.id);
-			if (trackDetail !== null) {
-				track = {
-					id: trackDetail.id,
-					title: trackDetail.title,
-					duration: trackDetail.duration,
-					artists: trackDetail.artists,
-					coverImage: trackDetail.coverImage,
-					audioFile: trackDetail.audioFile,
-					videoFile: trackDetail.videoFile,
-					album: trackDetail.album.id,
-					genres: trackDetail.genres.map((genre) => genre.id),
-					playCount: trackDetail.playCount,
-				};
-			} else if (context === "album") {
-				console.log("data in album", data);
-				const albumDetail = await fetchAlbumDetailAPI(data.id);
-				console.log("ddetail albumalbum", albumDetail);
 
-				if (albumDetail?.tracks?.length) {
-					track = albumDetail.tracks[0];
-					console.log("track context album", track);
+		let track = null;
+		try {
+			switch (context) {
+				case null: {
+					const listTrack = await fetchListTrack();
+					dispatch(setTracks(listTrack));
+
+					const trackDetail = await fetchTrackDetailAPI(data.id);
+					if (trackDetail) {
+						track = {
+							id: trackDetail.id,
+							title: trackDetail.title,
+							duration: trackDetail.duration,
+							artists: trackDetail.artists,
+							coverImage: trackDetail.coverImage,
+							audioFile: trackDetail.audioFile,
+							videoFile: trackDetail.videoFile,
+							album: trackDetail.album.id,
+							genres: trackDetail.genres.map((genre) => genre.id),
+							playCount: trackDetail.playCount,
+						};
+					}
+					break;
 				}
-			} else if (context === "artist") {
-				const artistTopTracks = await fetchArtistDetails(data.id);
-				if (artistTopTracks) track = artistTopTracks?.tracks[0]; // Lấy bài đầu tiên của artist
+				case "album": {
+					const albumDetail = await fetchAlbumDetailAPI(data.id);
+					dispatch(setTracks(albumDetail?.tracks || []));
+					if (albumDetail?.tracks?.length) {
+						track = albumDetail.tracks[playState.positionInContext] || albumDetail.tracks[0];
+					}
+					break;
+				}
+				case "artist": {
+					const artistTopTracks = await fetchArtistDetails(data.id);
+					dispatch(setTracks(artistTopTracks?.tracks || []));
+					if (artistTopTracks?.tracks?.length) {
+						track = artistTopTracks.tracks[playState.positionInContext] || artistTopTracks.tracks[0];
+					}
+					break;
+				}
+				default:
+					console.warn("Không xác định được context phù hợp.");
 			}
 
-			if (track === null) {
-				console.error("Không tìm thấy track phù hợp");
+			if (!track) {
+				toast.error("Không thể lấy thông tin bài hát.");
 				return;
 			}
-			console.log("new tracktrack", track);
 
+			const isSame = playState.contextType === context;
 			const newPlayState: PlayState = {
 				...playState,
 				currentTrack: track,
-				isPlaying: true,
-				progress: 0,
-				contextId: data.id,
+				isPlaying: isSame ? !playState.isPlaying : true,
+				progress: isSame ? playState.progress : 0,
+				contextId: context ? data.id : null,
 				contextType: context,
-				positionInContext: 0,
+				positionInContext: playState.positionInContext,
 				lastUpdated: new Date().toISOString(),
 			};
-
-			console.log("new playstate", newPlayState);
+			console.log(newPlayState, "newPlayState");
 
 			dispatch(setPlayState(newPlayState));
-
-			await dispatch(updatePlayState(newPlayState));
-			// console.log ('new playstate', newPlayState);
-			// console.log('update',updatePlayState(newPlayState));
+			console.log(newPlayState);
+		} catch (error) {
+			console.error("Lỗi khi xử lý Play/Pause:", error);
+			toast.error("Có lỗi xảy ra khi phát nhạc.");
 		}
 	};
 
@@ -116,7 +127,13 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 						className="bg-green-600 text-black w-12 h-12 rounded-full flex items-center justify-center"
 						onClick={handlePlayPauseClick} // Sử dụng hàm handlePlayPauseClick
 					>
-						{isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
+						{((playState.contextId === data.id && playState.contextType === context) ||
+							(playState.contextType === null && playState.currentTrack?.id === data.id)) &&
+						playState.isPlaying ? (
+							<PauseIcon className="w-5 h-5" />
+						) : (
+							<PlayIcon className="w-5 h-5" />
+						)}
 					</button>
 				</div>
 			</div>
