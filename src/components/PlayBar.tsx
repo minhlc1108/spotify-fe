@@ -226,7 +226,7 @@ const PlayBar: React.FC = () => {
 						{playState.currentTrack?.title}
 					</Link>
 					<ul>
-						{playState.currentTrack?.artists.map((artist, index) => (
+						{playState.currentTrack?.artists?.map((artist, index) => (
 							<Link key={index} to={"/artist/" + artist.id}>
 								<li className="text-xs hover:underline inline">
 									{artist.name}
