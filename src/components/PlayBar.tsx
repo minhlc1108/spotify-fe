@@ -190,9 +190,9 @@ const PlayBar: React.FC = () => {
 	}, [showVideo]);
 
 	return (
-		<div className=" h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
+		<div className=" h-full w-full bg-black flex items-center px-4 text-white overflow-hidden">
 			{/* Left - Thông tin bài hát */}
-			<div className="flex items-center gap-4 z-10">
+			<div className="flex items-center gap-4 z-10 w-1/4">
 				{playState.currentTrack?.coverImage && <img className="w-12" src={playState.currentTrack.coverImage} alt="" />}
 				<div className="px-3">
 					<Link to={"/album/" + playState.currentTrack?.album} className="text-s font-bold hover:underline">
@@ -215,7 +215,7 @@ const PlayBar: React.FC = () => {
 			</div>
 
 			{/* Center - Các nút điều khiển & thanh tiến trình */}
-			<div className="flex flex-col items-center z-10">
+			<div className="flex flex-col items-center z-10 w-2/4">
 				<div className="flex items-center gap-6">
 					<button
 						onClick={handleToggleShuffle}
@@ -333,7 +333,7 @@ const PlayBar: React.FC = () => {
 			</div>
 
 			{/* Right - Volume & tiện ích */}
-			<div className="flex items-center gap-4">
+			<div className="flex items-center gap-4 justify-end w-1/4">
 				<DownloadButton context={"track"} audio={playState.currentTrack} />
 
 				<button className="w-5 h-5 cursor-pointer flex items-center justify-center opacity-80">
