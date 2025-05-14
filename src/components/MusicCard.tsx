@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import PlayIcon from "@components/icons/icon-play";
-import { useState } from "react";
 import PauseIcon from "@components/icons/icon-pause";
 import DefaultIcon from "./icons/icon-default";
 import { fetchAlbumDetailAPI, fetchArtistDetails, fetchListTrack, fetchTrackDetailAPI } from "@/api";
