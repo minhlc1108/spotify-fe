@@ -17,6 +17,8 @@ import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
 import { PlayState } from "@/types/PlayState";
 import DownloadButton from "./DownloadButton";
+import { fetchArtistDetailAPI, fetchListTrack, fetchAlbumDetailAPI } from "@/api";
+import { setTracks } from "@/store/slices/listTrackSlice";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -36,6 +38,30 @@ const PlayBar: React.FC = () => {
 		dispatch(setPlayState(updated));
 	};
 
+	useEffect(() => {
+		const fetchTracks = async () => {
+			let tracks;
+			switch (playState.contextType) {
+				case null:
+					tracks = await fetchListTrack();
+					dispatch(setTracks(tracks));
+					break;
+				case "playlist":
+					await fetchArtistDetailAPI(playState.contextId || "").then((data) => {
+						dispatch(setTracks(data?.tracks || []));
+					});
+					break;
+				case "album":
+					await fetchAlbumDetailAPI(playState.contextId || "").then((data) => {
+						dispatch(setTracks(data?.tracks || []));
+					});
+					break;
+				default:
+					break;
+			}
+		};
+		void fetchTracks();
+	}, [playState.contextType, playState.contextId, dispatch]);
 	// handle khi tab bị tắt hoặc mất focus
 	useEffect(() => {
 		const handleBeforeUnload = (): void => {
@@ -202,8 +228,13 @@ const PlayBar: React.FC = () => {
 						className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80"
 						onClick={() => {
 							if (tracks) {
-								const newPosition =
+								const nextPosition =
 									playState.positionInContext - 1 < 0 ? tracks?.length - 1 : playState.positionInContext - 1;
+								const newPosition = playState.isLooping
+									? playState.positionInContext
+									: playState.isShuffle
+										? Math.floor(Math.random() * tracks.length)
+										: nextPosition;
 								dispatch(
 									setPlayState({
 										...playState,
@@ -239,8 +270,13 @@ const PlayBar: React.FC = () => {
 						className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
 						onClick={() => {
 							if (tracks) {
-								const newPosition = playState.positionInContext + 1;
-								console.log(tracks);
+								const nextPosition =
+									playState.positionInContext + 1 >= tracks.length ? 0 : playState.positionInContext + 1;
+								const newPosition = playState.isLooping
+									? playState.positionInContext
+									: playState.isShuffle
+										? Math.floor(Math.random() * tracks.length)
+										: nextPosition;
 								dispatch(
 									setPlayState({
 										...playState,
