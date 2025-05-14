@@ -1,6 +1,9 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import Spotify from "@components/icons/icon-spotify";
-import { Link, useNavigate } from "react-router-dom";
+import Google from "@components/icons/icon-google";
+import Facebook from "@components/icons/icon-facebook";
+import Apple from "@components/icons/icon-apple";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 
@@ -12,7 +15,6 @@ interface Errors {
 const Login: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.auth.user);
-	const { status } = useAppSelector((state) => state.auth);
 	const [identifier, setIdentifier] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [errors, setErrors] = useState<Errors>({});
@@ -27,11 +29,11 @@ const Login: React.FC = () => {
 		const newErrors: Errors = {};
 
 		if (!identifier.trim()) {
-			newErrors.identifier = "Vui lòng nhập Email hoặc username ";
+			newErrors.identifier = "Email or username is required";
 		}
 
 		if (!password.trim()) {
-			newErrors.password = "Vui lòng nhập mật khẩu";
+			newErrors.password = "Password is required";
 		}
 
 		setErrors(newErrors);
@@ -60,6 +62,7 @@ const Login: React.FC = () => {
 
 				{/* Title */}
 				<h1 className="text-2xl font-bold text-center text-white mb-6">Đăng nhập vào Spotify</h1>
+
 				{/* Form */}
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Identifier */}
@@ -80,7 +83,6 @@ const Login: React.FC = () => {
 						<input
 							type="password"
 							value={password}
-							autoComplete="current-password"
 							onChange={(e) => setPassword(e.target.value)}
 							className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
 						/>
@@ -89,25 +91,10 @@ const Login: React.FC = () => {
 
 					{/* Submit button */}
 					<button
-						disabled={status === "loading"}
 						type="submit"
 						className="w-full py-2 rounded-full font-semibold bg-green-600 hover:bg-green-500 text-white transition-colors"
 					>
-						{status === "loading" ? (
-							<div className="flex justify-center">
-								<svg
-									className="animate-spin h-5 w-5 text-white"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-								>
-									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-									<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-								</svg>
-							</div>
-						) : (
-							"Log In"
-						)}
+						Log In
 					</button>
 				</form>
 

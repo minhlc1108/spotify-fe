@@ -19,6 +19,7 @@ import { PlayState } from "@/types/PlayState";
 import DownloadButton from "./DownloadButton";
 import { fetchArtistDetailAPI, fetchListTrack, fetchAlbumDetailAPI } from "@/api";
 import { setTracks } from "@/store/slices/listTrackSlice";
+import PlusCircleAction from "./PlusCirleAction";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -226,7 +227,7 @@ const PlayBar: React.FC = () => {
 						{playState.currentTrack?.title}
 					</Link>
 					<ul>
-						{playState.currentTrack?.artists.map((artist, index) => (
+						{playState.currentTrack?.artists?.map((artist, index) => (
 							<Link key={index} to={"/artist/" + artist.id}>
 								<li className="text-xs hover:underline inline">
 									{artist.name}
@@ -236,9 +237,13 @@ const PlayBar: React.FC = () => {
 						))}
 					</ul>
 				</div>
-				<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
-					<PlusCirle fill="#ccc" />
-				</div>
+					{
+					playState.currentTrack?.id && (
+						<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
+							<PlusCircleAction fill="#ccc" trackId={playState?.currentTrack?.id || "" } position="fixed" />
+						</div>
+						)
+					}
 			</div>
 
 			{/* Center - Các nút điều khiển & thanh tiến trình */}
