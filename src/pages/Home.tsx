@@ -2,11 +2,11 @@ import { fetchListAlbum, fetchListArtist, fetchListTrack } from "@/api";
 import Section from "@/components/Section";
 import { Album } from "@/types/Album";
 import { Artist } from "@/types/Artist";
-import { Track } from "@/types/Track";
+import { SimpleTrack } from "@/types/Track";
 import React, { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-	const [tracks, setTracks] = useState<Track[]>([]);
+	const [tracks, setTracks] = useState<SimpleTrack[]>([]);
 	const [albums, setAlbums] = useState<Album[]>([]);
 	const [artists, setArtists] = useState<Artist[]>([]);
 	useEffect(() => {
@@ -22,7 +22,7 @@ const Home: React.FC = () => {
 			});
 
 		fetchListTrack()
-			.then((data: Track[]) => setTracks(data))
+			.then((data: SimpleTrack[]) => setTracks(data))
 			.catch((error) => {
 				console.log(error);
 			});

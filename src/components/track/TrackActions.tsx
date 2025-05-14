@@ -3,12 +3,45 @@ import PlayIcon from "../icons/icon-play";
 import PlusCirle from "../icons/icon-plusCirle";
 import DownloadIcon from "../icons/icon-download";
 import MoreIcon from "../icons/icon-more";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import PauseIcon from "../icons/icon-pause";
+import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 
-const TrackActions: React.FC = () => {
+interface TrackActionsProps {
+	id: string | undefined;
+}
+
+const TrackActions: React.FC<TrackActionsProps> = ({ id }) => {
+	const playState = useAppSelector((state) => state.playState);
+	const dispatch = useAppDispatch();
 	return (
 		<div className="h-14 flex items-center gap-6 py-2 ">
-			<button className="bg-green-500 h-14 w-14 flex items-center justify-center rounded-full hover:bg-green-600">
-				<PlayIcon width={24} height={24} />
+			<button
+				className="bg-green-500 h-14 w-14 flex items-center justify-center rounded-full hover:bg-green-600"
+				onClick={() => {
+					dispatch(
+						setPlayState({
+							...playState,
+							isPlaying: !playState.isPlaying,
+							progress: playState.progress,
+							lastUpdated: new Date().toISOString(),
+						})
+					);
+					if (!playState.isPlaying) {
+						updatePlayState({
+							...playState,
+							isPlaying: !playState.isPlaying,
+							progress: playState.progress,
+							lastUpdated: new Date().toISOString(),
+						});
+					}
+				}}
+			>
+				{playState.currentTrack?.id === id && playState.isPlaying ? (
+					<PauseIcon width={24} height={24} />
+				) : (
+					<PlayIcon width={24} height={24} />
+				)}
 			</button>
 			<button className="text-white">
 				<PlusCirle width={24} fill="#ccc" />

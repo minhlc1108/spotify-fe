@@ -27,6 +27,7 @@ const PlayBar: React.FC = () => {
 	const [showFullScreen, setShowFullScreen] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
+	const tracks = useAppSelector((state) => state.listTrack.tracks);
 
 	// handle khi change thì update
 	const handleToggleShuffle = (): void => {
@@ -47,8 +48,8 @@ const PlayBar: React.FC = () => {
 
 	const handleToggleLoop = async (): Promise<void> => {
 		const updated = { ...playState, isLooping: !playState.isLooping };
-		await dispatch(updatePlayState(updated));
 		dispatch(setPlayState(updated));
+		await dispatch(updatePlayState(updated));
 		// API call
 	};
 
@@ -56,7 +57,7 @@ const PlayBar: React.FC = () => {
 		if (!playState.currentTrack) return;
 
 		// Hàm cập nhật trạng thái và gửi API
-		const update = async (): Promise<void> => {
+		const update = () => {
 			// Cập nhật lại Redux playState
 			const newPlayState: PlayState = {
 				currentTrack: playState.currentTrack,
@@ -80,7 +81,7 @@ const PlayBar: React.FC = () => {
 			if (video) video.loop = !!newPlayState.isLooping;
 
 			// Gọi API để đồng bộ với Backend
-			await dispatch(updatePlayState(newPlayState));
+			void dispatch(updatePlayState(newPlayState));
 		};
 
 		// Gọi hàm update ngay khi có thay đổi
@@ -149,7 +150,6 @@ const PlayBar: React.FC = () => {
 		if (!audio) return;
 
 		if (playState.isPlaying && playState.currentTrack?.audioFile) {
-			// audio.load(); // reset lại audio để tránh bug
 			audio.play().catch(() => {});
 			video?.play().catch(() => {});
 		}
@@ -198,7 +198,33 @@ const PlayBar: React.FC = () => {
 						<ShuffleIcon fill={!playState.isShuffle ? "#ccc" : "#3be477"} />
 					</button>
 
-					<button className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80">
+					<button
+						className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={() => {
+							if (tracks) {
+								const newPosition =
+									playState.positionInContext - 1 < 0 ? tracks?.length - 1 : playState.positionInContext - 1;
+								dispatch(
+									setPlayState({
+										...playState,
+										positionInContext: newPosition,
+										currentTrack: tracks[newPosition],
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+								void dispatch(
+									updatePlayState({
+										...playState,
+										positionInContext: newPosition,
+										currentTrack: tracks[newPosition],
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+							}
+						}}
+					>
 						<NextIcon fill="#ccc" />
 					</button>
 
@@ -209,7 +235,33 @@ const PlayBar: React.FC = () => {
 						{playState.isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
 					</button>
 
-					<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
+					<button
+						className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={() => {
+							if (tracks) {
+								const newPosition = playState.positionInContext + 1;
+								console.log(tracks);
+								dispatch(
+									setPlayState({
+										...playState,
+										currentTrack: tracks[newPosition] ? tracks[newPosition] : tracks[0],
+										positionInContext: tracks[newPosition] ? newPosition : 0,
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+								void dispatch(
+									updatePlayState({
+										...playState,
+										positionInContext: newPosition,
+										currentTrack: tracks[newPosition],
+										progress: 0,
+										isPlaying: true,
+									})
+								);
+							}
+						}}
+					>
 						<NextIcon fill="#ccc" />
 					</button>
 
