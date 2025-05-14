@@ -1,6 +1,6 @@
 // PlayBar.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PlayIcon from "./icons/icon-play";
 import SpeakIcon from "./icons/icon-speaker";
 import PauseIcon from "./icons/icon-pause";
@@ -19,39 +19,119 @@ import { formatSecondsToMinutes } from "@/utils/format";
 import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
 import { PlayState } from "@/types/PlayState";
+import { fetchAlbumDetailAPI, fetchArtistDetails, fetchListAlbum, fetchListArtist, fetchListTrack } from "@/api";
+import { SimpleTrack, Track } from "@/types/Track";
+import DownloadIcon from "./icons/icon-download";
+import MusicCard from "./MusicCard";
+import { MusicFolderSong } from "./icons/icon-music-download";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const audioRef = React.useRef<HTMLAudioElement>(null);
+	const audioRef = useRef<HTMLAudioElement>(null);
 	const playState = useAppSelector((state) => state.playState);
 	const [isDragging, setIsDragging] = useState(false);
 	const [localProgress, setLocalProgress] = useState(playState.progress);
 
-	// console.log ('this is playState in playbar', playState)
-	const handleNextTrack = () => {
-		if (!playState.currentPlaylist) return;
-
-		let nextTrack;
-		const currentTrackId = playState.currentTrack?.id;
-		const playlist = playState.currentPlaylist;
-
-		if (playState.isShuffle) {
-			// Random track khác với track hiện tại
-			const otherTracks = playlist.filter((track) => track.id !== currentTrackId);
-			const randomIndex = Math.floor(Math.random() * otherTracks.length);
-			nextTrack = otherTracks[randomIndex];
-		} else {
-			// Phát tuần tự
-			const currentIndex = playlist.findIndex((t) => t.id === currentTrackId);
-			const nextIndex = (currentIndex + 1) % playlist.length;
-			nextTrack = playlist[nextIndex];
+	const downloadCurrentTrack = (playState: PlayState) => {
+		const track = playState?.currentTrack;
+		if (!track || !track.audioFile) {
+			console.error("Không có bài hát hợp lệ để tải xuống.");
+			return;
 		}
 
-		dispatch({ type: "SET_CURRENT_TRACK", payload: nextTrack });
+		const fileName = `${track.title.replace(/\s+/g, "_")}.mp3`;
+
+		fetch(track.audioFile)
+			.then((response) => response.blob())
+			.then((blob) => {
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = fileName;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(url);
+			})
+			.catch((error) => {
+				console.error("Tải xuống thất bại:", error);
+			});
+	};
+
+	// console.log ('this is playState in playbar', playState)
+	const handleTrackChange = async (direction: "next" | "prev") => {
+		const currentTrack = playState.currentTrack;
+		if (!currentTrack) return;
+
+		let playlist: SimpleTrack[] = [];
+
+		try {
+			switch (playState.contextType) {
+				case "album":
+					const albumRes = await fetchAlbumDetailAPI(currentTrack.album.id);
+					playlist = albumRes?.tracks || [];
+					break;
+				case "artist":
+					const artistRes = await fetchArtistDetails(currentTrack.artists[0].id);
+					playlist = artistRes?.tracks || [];
+					break;
+				case "liked":
+					playlist = await fetchListTrack();
+					break;
+				default:
+					console.warn("Unknown context type");
+					return;
+			}
+		} catch (err) {
+			console.error("Error fetching playlist", err);
+			return;
+		}
+
+		let newTrack: SimpleTrack | null = null;
+		let trackHistoryBack = [...(playState.trackHistoryBack || [])];
+		let trackHistoryForward = [...(playState.trackHistoryForward || [])];
+
+		if (direction === "next") {
+			// Nếu có lịch sử đi lùi thì đi tới lại
+			if (trackHistoryForward.length > 0) {
+				newTrack = trackHistoryForward.pop()!;
+				trackHistoryBack.push(currentTrack);
+			} else {
+				const currentIndex = playlist.findIndex((t) => t.id === currentTrack.id);
+				if (currentIndex >= 0 && currentIndex < playlist.length - 1) {
+					newTrack = playlist[currentIndex + 1];
+					trackHistoryBack.push(currentTrack);
+				}
+			}
+		} else if (direction === "prev") {
+			if (trackHistoryBack.length > 0) {
+				const lastTrack = trackHistoryBack.pop()!;
+				trackHistoryForward.push(currentTrack);
+				newTrack = lastTrack;
+			}
+		}
+
+		if (!newTrack) {
+			console.log(`Cannot go ${direction}`);
+			return;
+		}
+
+		const newPlayState = {
+			...playState,
+			currentTrack: newTrack,
+			progress: 0,
+			isPlaying: true,
+			lastUpdated: new Date().toISOString(),
+			trackHistoryBack,
+			trackHistoryForward,
+		};
+
+		dispatch(setPlayState(newPlayState));
+		dispatch(updatePlayState(newPlayState));
 	};
 
 	// handle khi change thì update
-	const handleToggleShuffle = () => {
+	const handleToggleShuffle = (): void => {
 		const updated = { ...playState, isShuffle: !playState.isShuffle };
 
 		updatePlayState(updated); // API call
@@ -60,15 +140,15 @@ const PlayBar: React.FC = () => {
 
 	// handle khi tab bị tắt hoặc mất focus
 	useEffect(() => {
-		const handleBeforeUnload = () => {
+		const handleBeforeUnload = (): void => {
 			updatePlayState({ ...playState, isPlaying: false }); // hoặc gửi trạng thái cuối cùng
 		};
 
 		window.addEventListener("beforeunload", handleBeforeUnload);
-		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+		return (): void => window.removeEventListener("beforeunload", handleBeforeUnload);
 	}, [playState]);
 
-	const handleToggleLoop = () => {
+	const handleToggleLoop = (): void => {
 		const updated = { ...playState, isLooping: !playState.isLooping };
 		updatePlayState(updated);
 		dispatch(setPlayState(updated));
@@ -79,7 +159,7 @@ const PlayBar: React.FC = () => {
 		if (!playState.currentTrack) return;
 
 		// Hàm cập nhật trạng thái và gửi API
-		const update = async () => {
+		const update = async (): Promise<void> => {
 			// Cập nhật lại Redux playState
 			const newPlayState: PlayState = {
 				currentTrack: playState.currentTrack,
@@ -93,7 +173,7 @@ const PlayBar: React.FC = () => {
 				positionInContext: playState.positionInContext, // nếu cần
 				lastUpdated: new Date().toISOString(),
 			};
-			
+
 			// Cập nhật vào Redux Store
 			dispatch(setPlayState(newPlayState));
 			const audio = audioRef.current;
@@ -105,7 +185,7 @@ const PlayBar: React.FC = () => {
 		};
 
 		// Gọi hàm update ngay khi có thay đổi
-		update();
+		void update();
 
 		// Giám sát những thay đổi quan trọng trong playState
 	}, [playState.isPlaying, playState.currentTrack?.id, playState.isShuffle, playState.isLooping]);
@@ -145,7 +225,6 @@ const PlayBar: React.FC = () => {
 		if (Math.abs(audio.currentTime - playState.progress) > 0.5) {
 			audio.currentTime = playState.progress;
 		}
-
 	}, [playState.progress, isDragging]);
 
 	// Sync volume từ Redux → audio
@@ -160,10 +239,10 @@ const PlayBar: React.FC = () => {
 		if (!audio) return;
 
 		if (playState.isPlaying && playState.currentTrack?.audioFile) {
-			audio.load(); // reset lại audio để tránh bug
+			// audio.load(); // reset lại audio để tránh bug
 			audio.play().catch(() => {});
 		}
-	}, [playState.currentTrack?.id]);
+	}, [playState.currentTrack?.audioFile, playState.isPlaying]);
 
 	return (
 		<div className="h-full w-full bg-black flex justify-between items-center px-4 text-white overflow-hidden">
@@ -171,7 +250,7 @@ const PlayBar: React.FC = () => {
 			<div className="flex items-center gap-4">
 				{playState.currentTrack?.coverImage && <img className="w-12" src={playState.currentTrack.coverImage} alt="" />}
 				<div className="px-3">
-					<Link to={"/album/" + playState.currentTrack?.album?.id} className="text-s font-bold hover:underline">
+					<Link to={"/album/" + playState.currentTrack?.album} className="text-s font-bold hover:underline">
 						{playState.currentTrack?.title}
 					</Link>
 					<ul>
@@ -179,7 +258,7 @@ const PlayBar: React.FC = () => {
 							<Link key={index} to={"/artist/" + artist.id}>
 								<li className="text-xs hover:underline inline">
 									{artist.name}
-									{index < playState.currentTrack.artists.length - 1 ? ", " : ""}
+									{playState.currentTrack && index < playState.currentTrack.artists.length - 1 ? ", " : ""}
 								</li>
 							</Link>
 						))}
@@ -200,7 +279,10 @@ const PlayBar: React.FC = () => {
 						<ShuffleIcon fill={!playState.isShuffle ? "#ccc" : "#3be477"} />
 					</button>
 
-					<button className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80">
+					<button
+						className="w-4 h-4 rotate-180 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={() => handleTrackChange("prev")}
+					>
 						<NextIcon fill="#ccc" />
 					</button>
 
@@ -211,7 +293,10 @@ const PlayBar: React.FC = () => {
 						{playState.isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
 					</button>
 
-					<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
+					<button
+						className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
+						onClick={() => handleTrackChange("next")}
+					>
 						<NextIcon fill="#ccc" />
 					</button>
 
@@ -246,6 +331,12 @@ const PlayBar: React.FC = () => {
 
 			{/* Right - Volume & tiện ích */}
 			<div className="flex items-center gap-4">
+				<button
+					className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80"
+					onClick={() => downloadCurrentTrack(playState)}
+				>
+					<MusicFolderSong/>
+				</button>
 				<button className="w-4 h-4 cursor-pointer flex items-center justify-center opacity-80">
 					<MicIcon />
 				</button>

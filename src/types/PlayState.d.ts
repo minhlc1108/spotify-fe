@@ -1,9 +1,9 @@
-import { Track,TrackDetail } from "@types/Track";
+import { SimpleTrack } from "@types/Track";
 
 export type ContextType = "playlist" | "album" | "artist" | "liked" | null;
 
 export interface PlayState {
-	currentTrack: Track ;
+	currentTrack: SimpleTrack | null;
 	isPlaying: boolean;
 	progress: number;
 	isShuffle: boolean;

@@ -8,7 +8,8 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { TrackDetail } from "@/types/TrackDetail"; // Import TrackDetail type
 import { PlayState } from "@/types/PlayState";
-
+import { SimpleTrack } from "@/types/Track";
+import { toast } from "react-toastify";
 
 export interface MusicCardProps {
 	data: {
@@ -17,65 +18,72 @@ export interface MusicCardProps {
 		title: string;
 		artist: string;
 	};
-	context: "artist" | "track" | "album" ;
+	context: "playlist" | "album" | "artist" | "liked" | null;
 }
 
 const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 	const [isPlaying, setIsPlaying] = useState(false);
-	// console.log ('this is context page ', context);
+	const playState = useAppSelector((state) => state.playState);
+	const user = useAppSelector((state) => state.auth.user);
 	const dispatch = useAppDispatch();
-	// Hàm xử lý nhấn nút Play/Pause
-	const handlePlayPauseClick = async (e: React.MouseEvent) => {
+
+	const handlePlayPauseClick = async (e: React.MouseEvent): Promise<void> => {
 		e.stopPropagation();
-		console.log ('this is context music card ', context);
-		try {
-			let track;
-			// Xử lý tùy theo context
-			if (context === "track") {
-				track = await fetchTrackDetailAPI(data.id);
-			} else if (context === "album") {
-				// console.log('data in album', data)
-				const albumDetail = await fetchAlbumDetailAPI(data.id);
-				// console.log('ddetail albumalbum', albumDetail)
-
-				if (albumDetail?.tracks?.length) {
-					track = albumDetail.tracks[0];
-					console.log('track context album', track)
-				}
-			} else if (context === "artist") {
-				const artistTopTracks = await fetchArtistDetails(data.id);
-				track = artistTopTracks?.tracks[0]; // Lấy bài đầu tiên của artist
-			}
-	
-			if (!track) {
-				console.error("Không tìm thấy track phù hợp");
-				return;
-			}
-			console.log ('new tracktrack', track);
-	
-			const newPlayState: PlayState = {
-				currentTrack: track as TrackDetail,
-				isPlaying: true,
-				progress: 0,
-				contextId: data.id,
-				contextType: context,
-				positionInContext: 0,
-				lastUpdated: new Date().toISOString(),
-			};
-			console.log ('new playstate', newPlayState);
-
-			dispatch(setPlayState(newPlayState));
-
-			await dispatch(updatePlayState(newPlayState));
-			// console.log ('new playstate', newPlayState);
-			// console.log('update',updatePlayState(newPlayState));
-			
-		} catch (error) {
-			console.error("Lỗi khi phát nhạc:", error);
+		if (!user) {
+			toast.error("Bạn phải đăng nhập để sử dụng tính năng này");
+			return;
 		}
+
+		let track = null;
+
+		// Xử lý từng context riêng biệt
+		if (!context) {
+			const trackDetail = await fetchTrackDetailAPI(data.id);
+			if (trackDetail) {
+				track = {
+					id: trackDetail.id,
+					title: trackDetail.title,
+					duration: trackDetail.duration,
+					artists: trackDetail.artists,
+					coverImage: trackDetail.coverImage,
+					audioFile: trackDetail.audioFile,
+					videoFile: trackDetail.videoFile,
+					album: trackDetail.album.id,
+					genres: trackDetail.genres.map((genre) => genre.id),
+					playCount: trackDetail.playCount,
+				};
+			}
+		} else if (context === "album") {
+			const albumDetail = await fetchAlbumDetailAPI(data.id);
+			if (albumDetail?.tracks?.length) {
+				track = albumDetail.tracks[0];
+			}
+		} else if (context === "artist") {
+			const artistTopTracks = await fetchArtistDetails(data.id);
+			if (artistTopTracks?.tracks?.length) {
+				track = artistTopTracks.tracks[0];
+			}
+		}
+
+		if (!track) {
+			console.error("Không tìm thấy track phù hợp");
+			return;
+		}
+
+		const newPlayState: PlayState = {
+			...playState,
+			currentTrack: track as SimpleTrack,
+			isPlaying: true,
+			progress: 0,
+			contextId: data.id,
+			contextType: context,
+			positionInContext: 0,
+			lastUpdated: new Date().toISOString(),
+		};
+
+		dispatch(setPlayState(newPlayState));
+		await dispatch(updatePlayState(newPlayState));
 	};
-	
-	  
 
 	return (
 		<div className="group w-[180px] h-[230px] p-3 rounded cursor-pointer hover:bg-[#ffffff26] relative">
@@ -121,5 +129,3 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 };
 
 export default MusicCard;
-
-
