@@ -94,7 +94,6 @@ const Library: React.FC = () => {
 			.then((dataLibrary: LibraryType | null) => {
 				if (dataLibrary) {
 					setLibraryData(dataLibrary);
-					console.log("Fetched library data:", dataLibrary);
 				} else {
 					console.log("Library data is null");
 				}
@@ -104,7 +103,6 @@ const Library: React.FC = () => {
 			});
 	}, []);
 
-console.log(libraryData?.followedArtists?.length || 0);
 	return (
 		<div className="sm:flex hidden w-[280px] min-h-0  flex-col">
 			<div className={`${hasScrolled ? "shadow-[0_6px_10px_rgba(0,0,0,0.6)]" : ""}`}>

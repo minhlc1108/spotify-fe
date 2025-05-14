@@ -36,8 +36,10 @@ const TrackList: React.FC<TrackListProps> = ({
         throw new Error("Function not implemented.");
     }
 
-    function formatDuration(duration: number): React.ReactNode {
-        throw new Error("Function not implemented.");
+    function formatDuration(durationInSeconds: number): string {
+      const minutes = Math.floor(durationInSeconds / 60);
+      const seconds = durationInSeconds % 60;
+      return `${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
 
   return (
@@ -109,7 +111,7 @@ const TrackList: React.FC<TrackListProps> = ({
                 />
               )}
               <div>
-                <div className="text-white font-medium">{track.title}</div>
+                <div className="text-white font-medium"><a href={"/track/"+track.id}>{track.title}</a></div>
                 {track.album && (
                   <div className="text-sm text-gray-400">{track.title}</div>
                 )}

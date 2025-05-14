@@ -41,7 +41,7 @@ const Track: React.FC = () => {
 				releaseDate={trackDetail.releaseDate}
 				playCount={trackDetail.playCount}
 			/>
-			<TrackActions />
+			<TrackActions trackId={trackDetail.id}/>
 			<Lyrics lyrics={trackDetail.lyrics || ""} />
 			<ArtistList artists={trackDetail.artists} />
 		</div>

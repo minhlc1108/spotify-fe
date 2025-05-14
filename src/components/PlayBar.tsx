@@ -17,6 +17,7 @@ import TailwindSlider from "./Slider";
 import VolumnOffIcon from "./icons/icon-volumn-off";
 import { PlayState } from "@/types/PlayState";
 import DownloadButton from "./DownloadButton";
+import PlusCircleAction from "./PlusCirleAction";
 
 const PlayBar: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -173,7 +174,7 @@ const PlayBar: React.FC = () => {
 						{playState.currentTrack?.title}
 					</Link>
 					<ul>
-						{playState.currentTrack?.artists.map((artist, index) => (
+						{playState.currentTrack?.artists?.map((artist, index) => (
 							<Link key={index} to={"/artist/" + artist.id}>
 								<li className="text-xs hover:underline inline">
 									{artist.name}
@@ -184,7 +185,9 @@ const PlayBar: React.FC = () => {
 					</ul>
 				</div>
 				<div className="w-4 h-4 cursor-pointer flex items-center justify-center rounded-full hover:fill-white z-10">
-					<PlusCirle fill="#ccc" />
+
+					<PlusCircleAction fill="#ccc" trackId={playState?.currentTrack?.id || "" } position="fixed" />
+					
 				</div>
 			</div>
 

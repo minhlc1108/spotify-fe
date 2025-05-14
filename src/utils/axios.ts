@@ -102,7 +102,9 @@ api.interceptors.response.use(
 		}
 
 		const errorMessage =
-			(error.response?.data as { message?: string })?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+			(error.response?.data as { message?: string; error?: string })?.message ||
+  			(error.response?.data as { message?: string; error?: string })?.error ||
+			 "Có lỗi xảy ra, vui lòng thử lại sau!";
 		toast.error(errorMessage);
 		return Promise.reject(error);
 	}
