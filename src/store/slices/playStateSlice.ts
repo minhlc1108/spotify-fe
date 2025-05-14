@@ -51,20 +51,15 @@ const mockPlayState: PlayState = {
 export const updatePlayState = createAsyncThunk(
 	"playState/update",
 	async (playState: PlayState, { rejectWithValue }) => {
-	  try {
-		console.log ('playState in playclice', playState)
-		const result = await patchPlayState(playState);
-		console.log ('update thành công', result)
-		return result;
-	  } catch (error: any) {
-		console.error("Thunk error:", error);
-		return rejectWithValue(error.message || "Unknown error");
-	  }
+		try {
+			const result = await patchPlayState(playState);
+			return result;
+		} catch (error: any) {
+			console.error("Thunk error:", error);
+			return rejectWithValue(error.message || "Unknown error");
+		}
 	}
-  );
-
- 
-  
+);
 
 export const fetchPlayState = createAsyncThunk("play/fetchPlayState", async (): Promise<PlayState> => {
 	// const res = await fetch("/api/playstate");
@@ -76,25 +71,21 @@ const playStateSlice = createSlice({
 	name: "playState",
 	initialState,
 	reducers: {
-	  setPlayState: (state, action: PayloadAction<PlayState>) => {
-		return { ...state, ...action.payload };
-	  },
+		setPlayState: (state, action: PayloadAction<PlayState>) => {
+			return { ...state, ...action.payload };
+		},
 	},
 	extraReducers: (builder) => {
-	  builder
-		.addCase(fetchPlayState.pending, (state) => {
-		  console.log("Fetching play state...");
-		})
-		.addCase(fetchPlayState.fulfilled, (state, action) => {
-		  console.log("Play state fetched:", action.payload);
-		  return { ...state, ...action.payload };
-		})
-		.addCase(fetchPlayState.rejected, (state, action) => {
-		  console.error("Failed to fetch play state:", action.payload);
-		})
+		builder
+			.addCase(fetchPlayState.pending, (state) => {})
+			.addCase(fetchPlayState.fulfilled, (state, action) => {
+				return { ...state, ...action.payload };
+			})
+			.addCase(fetchPlayState.rejected, (state, action) => {
+				console.error("Failed to fetch play state:", action.payload);
+			});
 	},
-  });
-  
+});
 
 export const { setPlayState } = playStateSlice.actions;
 export default playStateSlice.reducer;

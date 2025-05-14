@@ -3,13 +3,13 @@ import PlayIcon from "@components/icons/icon-play";
 import { useState } from "react";
 import PauseIcon from "@components/icons/icon-pause";
 import DefaultIcon from "./icons/icon-default";
-import { fetchAlbumDetailAPI, fetchArtistDetails, fetchTrackDetailAPI } from "@/api";
+import { fetchAlbumDetailAPI, fetchArtistDetails, fetchListTrack, fetchTrackDetailAPI } from "@/api";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { TrackDetail } from "@/types/TrackDetail"; // Import TrackDetail type
 import { PlayState } from "@/types/PlayState";
-import { SimpleTrack } from "@/types/Track";
 import { toast } from "react-toastify";
+import { setTracks } from "@/store/slices/listTrackSlice";
 
 export interface MusicCardProps {
 	data: {
@@ -22,74 +22,94 @@ export interface MusicCardProps {
 }
 
 const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
-	const [isPlaying, setIsPlaying] = useState(false);
 	const playState = useAppSelector((state) => state.playState);
 	const user = useAppSelector((state) => state.auth.user);
 	const dispatch = useAppDispatch();
 
 	const handlePlayPauseClick = async (e: React.MouseEvent): Promise<void> => {
 		e.stopPropagation();
+
 		if (!user) {
 			toast.error("Bạn phải đăng nhập để sử dụng tính năng này");
 			return;
 		}
 
+
 		let track = null;
+		try {
+			switch (context) {
+				case null: {
+					const listTrack = await fetchListTrack();
+					dispatch(setTracks(listTrack));
 
-		// Xử lý từng context riêng biệt
-		if (!context) {
-			const trackDetail = await fetchTrackDetailAPI(data.id);
-			if (trackDetail) {
-				track = {
-					id: trackDetail.id,
-					title: trackDetail.title,
-					duration: trackDetail.duration,
-					artists: trackDetail.artists,
-					coverImage: trackDetail.coverImage,
-					audioFile: trackDetail.audioFile,
-					videoFile: trackDetail.videoFile,
-					album: trackDetail.album.id,
-					genres: trackDetail.genres.map((genre) => genre.id),
-					playCount: trackDetail.playCount,
-				};
+					const trackDetail = await fetchTrackDetailAPI(data.id);
+					if (trackDetail) {
+						track = {
+							id: trackDetail.id,
+							title: trackDetail.title,
+							duration: trackDetail.duration,
+							artists: trackDetail.artists,
+							coverImage: trackDetail.coverImage,
+							audioFile: trackDetail.audioFile,
+							videoFile: trackDetail.videoFile,
+							album: trackDetail.album.id,
+							genres: trackDetail.genres.map((genre) => genre.id),
+							playCount: trackDetail.playCount,
+						};
+					}
+					break;
+				}
+				case "album": {
+					const albumDetail = await fetchAlbumDetailAPI(data.id);
+					dispatch(setTracks(albumDetail?.tracks || []));
+					if (albumDetail?.tracks?.length) {
+						track = albumDetail.tracks[playState.positionInContext] || albumDetail.tracks[0];
+					}
+					break;
+				}
+				case "artist": {
+					const artistTopTracks = await fetchArtistDetails(data.id);
+					dispatch(setTracks(artistTopTracks?.tracks || []));
+					if (artistTopTracks?.tracks?.length) {
+						track = artistTopTracks.tracks[playState.positionInContext] || artistTopTracks.tracks[0];
+					}
+					break;
+				}
+				default:
+					console.warn("Không xác định được context phù hợp.");
 			}
-		} else if (context === "album") {
-			const albumDetail = await fetchAlbumDetailAPI(data.id);
-			if (albumDetail?.tracks?.length) {
-				track = albumDetail.tracks[0];
+
+			if (!track) {
+				toast.error("Không thể lấy thông tin bài hát.");
+				return;
 			}
-		} else if (context === "artist") {
-			const artistTopTracks = await fetchArtistDetails(data.id);
-			if (artistTopTracks?.tracks?.length) {
-				track = artistTopTracks.tracks[0];
-			}
+
+			const isSame = playState.contextType === context;
+			const newPlayState: PlayState = {
+				...playState,
+				currentTrack: track,
+				isPlaying: isSame ? !playState.isPlaying : true,
+				progress: isSame ? playState.progress : 0,
+				contextId: context ? data.id : null,
+				contextType: context,
+				positionInContext: playState.positionInContext,
+				lastUpdated: new Date().toISOString(),
+			};
+			console.log(newPlayState, "newPlayState");
+
+			dispatch(setPlayState(newPlayState));
+			console.log(newPlayState);
+		} catch (error) {
+			console.error("Lỗi khi xử lý Play/Pause:", error);
+			toast.error("Có lỗi xảy ra khi phát nhạc.");
 		}
-
-		if (!track) {
-			console.error("Không tìm thấy track phù hợp");
-			return;
-		}
-
-		const newPlayState: PlayState = {
-			...playState,
-			currentTrack: track as SimpleTrack,
-			isPlaying: true,
-			progress: 0,
-			contextId: data.id,
-			contextType: context,
-			positionInContext: 0,
-			lastUpdated: new Date().toISOString(),
-		};
-
-		dispatch(setPlayState(newPlayState));
-		await dispatch(updatePlayState(newPlayState));
 	};
 
 	return (
 		<div className="group w-[180px] h-[230px] p-3 rounded cursor-pointer hover:bg-[#ffffff26] relative">
 			{/* Hình ảnh */}
 			<div className="relative aspect-square w-full">
-				<Link to={`/${context}/${data.id}`}>
+				<Link to={`/${context != null ? context : "track"}/${data.id}`}>
 					{data.img && data.img !== "" ? (
 						<img
 							className={`${context?.toLowerCase() === "artist" ? "rounded-full" : "rounded"} w-full h-full object-cover `}
@@ -110,13 +130,19 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 						className="bg-green-600 text-black w-12 h-12 rounded-full flex items-center justify-center"
 						onClick={handlePlayPauseClick} // Sử dụng hàm handlePlayPauseClick
 					>
-						{isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
+						{((playState.contextId === data.id && playState.contextType === context) ||
+							(playState.contextType === null && playState.currentTrack?.id === data.id)) &&
+						playState.isPlaying ? (
+							<PauseIcon className="w-5 h-5" />
+						) : (
+							<PlayIcon className="w-5 h-5" />
+						)}
 					</button>
 				</div>
 			</div>
 
 			{/* Tiêu đề & Nghệ sĩ */}
-			<Link to={`/${context}/${data.id}`} className="hover:underline">
+			<Link to={`/${context !== null ? context : "track"}/${data.id}`} className="hover:underline">
 				<p className="font-bold mt-2 mb-1 truncate" title={data.title}>
 					{data.title}
 				</p>

@@ -2,11 +2,11 @@ import { fetchListAlbum, fetchListArtist, fetchListTrack } from "@/api";
 import Section from "@/components/Section";
 import { Album } from "@/types/Album";
 import { Artist } from "@/types/Artist";
-import { Track } from "@/types/Track";
+import { SimpleTrack } from "@/types/Track";
 import React, { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-	const [tracks, setTracks] = useState<Track[]>([]);
+	const [tracks, setTracks] = useState<SimpleTrack[]>([]);
 	const [albums, setAlbums] = useState<Album[]>([]);
 	const [artists, setArtists] = useState<Artist[]>([]);
 	useEffect(() => {
@@ -22,7 +22,7 @@ const Home: React.FC = () => {
 			});
 
 		fetchListTrack()
-			.then((data: Track[]) => setTracks(data))
+			.then((data: SimpleTrack[]) => setTracks(data))
 			.catch((error) => {
 				console.log(error);
 			});
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
 		<section className="py-1">
 			<div className="px-10 ">
 				<Section
-					title="Trending Songs"
+					title="Songs"
 					url="/tracks"
 					data={tracks.map((data) => ({
 						data: {
@@ -46,7 +46,7 @@ const Home: React.FC = () => {
 				/>
 
 				<Section
-					title="Popular Artists"
+					title="Artists"
 					url="/artists"
 					data={artists.map((artist) => ({
 						data: {
@@ -60,7 +60,7 @@ const Home: React.FC = () => {
 				/>
 
 				<Section
-					title="Popular album and singles"
+					title="Album and singles"
 					url="/albums"
 					data={albums.map((data) => ({
 						data: {

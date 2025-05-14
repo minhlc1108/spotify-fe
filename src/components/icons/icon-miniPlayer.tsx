@@ -1,4 +1,6 @@
-export const OpenMiniPlayerIcon = (): JSX.Element => (
+import { SVGProps } from "react";
+
+export const OpenMiniPlayerIcon = (props: SVGProps<SVGSVGElement>): JSX.Element => (
 	<svg
 		width="24"
 		height="24"
@@ -8,6 +10,7 @@ export const OpenMiniPlayerIcon = (): JSX.Element => (
 		strokeWidth="1.5"
 		strokeLinecap="round"
 		strokeLinejoin="round"
+		{...props}
 	>
 		<rect x="3" y="3" width="18" height="14" rx="2"></rect>
 		<path d="M7 21h10M9 17v4M15 17v4"></path>
