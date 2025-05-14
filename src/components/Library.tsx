@@ -12,6 +12,7 @@ import { Playlist } from "@/types/Playlist";
 import { eventEmitter, PLAYLIST_UPDATED } from "@/utils/events";
 import {  LibraryType, LibraryTypeArtist } from "@/types/Library";
 import { fetchLibrary } from "@/api";
+import { reloadLibrary, subscribeLibrary } from "@/store/librarystore";
 
 const Library: React.FC = () => {
 	const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -74,6 +75,13 @@ const Library: React.FC = () => {
 		};
 	}, [keyword]);
 
+	useEffect(() => {
+		// Đăng ký lắng nghe khi dữ liệu thay đổi
+		const unsubscribe = subscribeLibrary(setLibraryData);
+		void reloadLibrary(); // Lấy dữ liệu ban đầu
+
+		return () => unsubscribe(); // Dọn dẹp
+	}, []);
 	useEffect(() => {
 		void fetchPlaylists();
 

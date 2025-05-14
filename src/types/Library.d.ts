@@ -35,3 +35,7 @@ export type LibraryTypeArtist = {
   name: string;
   image: string;
 };
+export type LibraryFetchType = {
+  id: string;
+  type: string;
+};

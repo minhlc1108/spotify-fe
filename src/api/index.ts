@@ -5,7 +5,7 @@ import { PlayState } from "@/types/PlayState";
 import { SearchResult } from "@/types/Search";
 import { Track, TrackDetail } from "@/types/Track";
 import { Playlist, PlaylistDetail } from "@/types/Playlist";
-import { LibraryType } from "@/types/Library";
+import { LibraryFetchType, LibraryType } from "@/types/Library";
 import api from "@/utils/axios";
 
 export const loginAPI = async (data: AuthLogin): Promise<AuthLoginResponse | null> => {
@@ -461,4 +461,28 @@ export const fetchLibrary = async (): Promise<LibraryType | null> => {
 		console.error("Error fetching library:", error);
 		return null;
 	}
+};
+export const fetchAddItemInLibrary = async (item: LibraryFetchType): Promise<{ message: string; status: number }> => {
+	try {
+		const response = await api.post("/library/", item);
+		if (response.status === 200) {
+			console.log("Đã thêm artist vào thư viện.");
+			return { message: response.data.message, status: 200 };
+		}
+	} catch (error) {
+		console.error("Error adding item to library:", error);
+	}
+	return { message: "Error adding item to library.", status: 500 };
+};
+export const fetchDelItemFromLibrary = async (item: LibraryFetchType): Promise<{ message: string; status: number }> => {
+	try {
+		const response = await api.delete("/library/", { data: item });
+		if (response.status === 200) {
+			console.log("Đã xóa artist khỏi thư viện.");
+			return { message: response.data.message, status: 200 };
+		}
+	} catch (error) {
+		console.error("Error deleting item from library:", error);
+	}
+	return { message: "Error deleting item from library.", status: 500 };
 };
