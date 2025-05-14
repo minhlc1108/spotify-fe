@@ -6,12 +6,13 @@ import MoreIcon from "../icons/icon-more";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import PauseIcon from "../icons/icon-pause";
 import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
+import { SimpleTrack } from "@/types/Track";
 
 interface TrackActionsProps {
-	id: string | undefined;
+	track: SimpleTrack;
 }
 
-const TrackActions: React.FC<TrackActionsProps> = ({ id }) => {
+const TrackActions: React.FC<TrackActionsProps> = ({ track }) => {
 	const playState = useAppSelector((state) => state.playState);
 	const dispatch = useAppDispatch();
 	return (
@@ -19,25 +20,48 @@ const TrackActions: React.FC<TrackActionsProps> = ({ id }) => {
 			<button
 				className="bg-green-500 h-14 w-14 flex items-center justify-center rounded-full hover:bg-green-600"
 				onClick={() => {
-					dispatch(
-						setPlayState({
-							...playState,
-							isPlaying: !playState.isPlaying,
-							progress: playState.progress,
-							lastUpdated: new Date().toISOString(),
-						})
-					);
-					if (!playState.isPlaying) {
+					if (playState.currentTrack?.id !== track.id) {
+						dispatch(
+							setPlayState({
+								...playState,
+								currentTrack: track,
+								isPlaying: true,
+								contextId: null,
+								contextType: null,
+								progress: 0,
+								lastUpdated: new Date().toISOString(),
+							})
+						);
 						updatePlayState({
 							...playState,
-							isPlaying: !playState.isPlaying,
-							progress: playState.progress,
+							currentTrack: track,
+							isPlaying: true,
+							contextId: null,
+							contextType: null,
+							progress: 0,
 							lastUpdated: new Date().toISOString(),
 						});
+					} else {
+						dispatch(
+							setPlayState({
+								...playState,
+								isPlaying: !playState.isPlaying,
+								progress: playState.progress,
+								lastUpdated: new Date().toISOString(),
+							})
+						);
+						if (!playState.isPlaying) {
+							updatePlayState({
+								...playState,
+								isPlaying: !playState.isPlaying,
+								progress: playState.currentTrack?.id === track.id ? playState.progress : 0,
+								lastUpdated: new Date().toISOString(),
+							});
+						}
 					}
 				}}
 			>
-				{playState.currentTrack?.id === id && playState.isPlaying ? (
+				{playState.currentTrack?.id === track.id && playState.isPlaying ? (
 					<PauseIcon width={24} height={24} />
 				) : (
 					<PlayIcon width={24} height={24} />
