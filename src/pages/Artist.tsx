@@ -2,19 +2,25 @@ import { fetchAddItemInLibrary, fetchArtistDetailAPI, fetchDelItemFromLibrary } 
 import ArtistHeader from "@/components/ArtistHeader";
 import DownloadIcon from "@/components/icons/icon-download";
 import MoreIcon from "@/components/icons/icon-more";
+import PauseIcon from "@/components/icons/icon-pause";
 import PlayIcon from "@/components/icons/icon-play";
 import PlusCirle from "@/components/icons/icon-plusCirle";
 import Section from "@/components/Section";
 import Table from "@/components/Table";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { reloadLibrary } from "@/store/librarystore";
+import { setTracks } from "@/store/slices/listTrackSlice";
+import { setPlayState, updatePlayState } from "@/store/slices/playStateSlice";
 import { ArtistDetail } from "@/types/Artist";
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { data, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 const Artist: React.FC = () => {
 	const { id } = useParams();
 	const [artistDetail, setArtistDetail] = React.useState<ArtistDetail>();
 	const [isFollow, setIsFollow] = React.useState<boolean>(false);
+	const playState = useAppSelector((state) => state.playState);
+	const dispatch = useAppDispatch();
 	useEffect(() => {
 		fetchArtistDetailAPI(id as string)
 			.then((data) => {
@@ -66,8 +72,42 @@ const Artist: React.FC = () => {
 		<div className="w-full min-h-full bg-gradient-to-b from-zinc-900 via-zinc-800 to-black text-white flex flex-col gap-6">
 			<ArtistHeader name={artistDetail.name} image={artistDetail.imagePage || artistDetail.image} />
 			<div className="px-6 flex-row flex items-center gap-4">
-				<button className="bg-green-600 text-black p-1 rounded-full w-10 h-10  flex items-center justify-center shadow-xl ">
-					<PlayIcon className="w-3/5 h-3/5 " />
+				<button
+					className="bg-green-600 text-black p-1 rounded-full w-10 h-10  flex items-center justify-center shadow-xl "
+					onClick={() => {
+						if (playState.contextType === "artist" && playState.contextId === id) {
+							dispatch(setPlayState({ ...playState, isPlaying: !playState.isPlaying, progress: playState.progress }));
+						} else {
+							dispatch(setTracks(artistDetail.tracks));
+							dispatch(
+								setPlayState({
+									...playState,
+									currentTrack: artistDetail.tracks[0],
+									isPlaying: true,
+									contextId: id || "",
+									contextType: "artist",
+									progress: 0,
+								})
+							);
+							if (!playState.isPlaying)
+								void dispatch(
+									updatePlayState({
+										...playState,
+										currentTrack: artistDetail.tracks[0],
+										isPlaying: false,
+										contextId: id || "",
+										contextType: "artist",
+										progress: 0,
+									})
+								);
+						}
+					}}
+				>
+					{playState.contextType === "artist" && playState.contextId === id && playState.isPlaying ? (
+						<PauseIcon className="w-3/5 h-3/5 " />
+					) : (
+						<PlayIcon className="w-3/5 h-3/5 " />
+					)}
 				</button>
 				{isFollow ? (
 					<button

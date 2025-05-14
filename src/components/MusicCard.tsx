@@ -81,7 +81,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ data, context }) => {
 				return;
 			}
 
-			const isSame = playState.contextType === context;
+			const isSame = playState.contextType === context && playState.contextId === data.id;
 			const newPlayState: PlayState = {
 				...playState,
 				currentTrack: track,

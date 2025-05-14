@@ -8,6 +8,7 @@ export interface PlayState {
 	progress: number;
 	isShuffle: boolean;
 	isLooping: boolean;
+	album: string;
 	volume: number;
 	contextId: string | null;
 	contextType: ContextType;
